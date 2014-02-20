@@ -21,9 +21,6 @@ body {
 	    width = 600 - margin.left - margin.right,
 	    height = 300 - margin.top - margin.bottom;
 
-	// date parser - will convert YYYYMMDD dates into JS Date objects
-	var parseDate = d3.time.format("%Y%m%d").parse;
-
 	// a time scale object for the x axis?
 	var x = d3.time.scale()
 	    .range([0, width]);
@@ -70,7 +67,8 @@ body {
 
 	// so we extract the list of timestamp/value pairs
 	data = allData.temp.avg.data;
-	  color.domain(d3.keys(data));
+	// this should be a list of the series names
+    color.domain(["Average"]);
 		
 
 		// ... and convert the timestamp into a JS Date object
@@ -89,13 +87,9 @@ body {
 
 	  x.domain(d3.extent(data, function(d) { return d[0]; }));
 
-    // if min goes < 0 we want to multiply by 1.1 so that the magnitude gets *bigger*
-    var min = d3.min(cities, function(c) { return d3.min(c.values, function(v) { return v.power; }); });
-    console.log("Minimum temp: " + min + " so use " + (min < 0 ? min * 1.1 : min - (min * 0.9)));
 	  y.domain([
-	  0,
-	  //  min < 0 ? min * 1.1 : min - (min * 0.9),
-	    d3.max(cities, function(c) { return 1.1 * d3.max(c.values, function(v) { return v.power; }); })
+	    d3.min(cities, function(c) { return Math.floor(d3.min(c.values, function(v) { return v.power; })); }),
+	    d3.max(cities, function(c) { return Math.ceil(d3.max(c.values, function(v) { return v.power; })); })
 	  ]);
 
 	  svg.append("g")
@@ -143,9 +137,8 @@ var div = d3.select("body").append("div")
             this.style.opacity = 1;
             div.transition()
             .duration(200)
-            .style("opacity", .9)
-            .style("border", "2px solid " + color(d.series))
-            .style("background-color", "white");
+						.style("opacity", null)
+            .style("border-color", color(d.series));
             div .html(formatTime(d.date) + "<br />" + d.power + " &deg;C")
             .style("left", 5 + d3.event.pageX + "px")
             .style("top", (d3.event.pageY - 28) + "px");
