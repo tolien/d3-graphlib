@@ -25,6 +25,9 @@ function chart(selection) {
 	var xAxis = d3.svg.axis()
 	    .scale(x)
 	    .orient("bottom");
+	    
+	// suppress the beginning/end ticks
+	xAxis.outerTickSize(0);
 
 	// a left-aligned Y axis 
 	var yAxis = d3.svg.axis()
