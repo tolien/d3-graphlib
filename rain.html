@@ -15,42 +15,6 @@ body {
 
 	<script>
 
-    var formatTime = d3.time.format("%e %B %H:%M");
-
-	var margin = {top: 20, right: 80, bottom: 30, left: 50},
-	    width = 600 - margin.left - margin.right,
-	    height = 300 - margin.top - margin.bottom;
-
-	// date parser - will convert YYYYMMDD dates into JS Date objects
-	var parseDate = d3.time.format("%Y%m%d").parse;
-
-	// a time scale object for the x axis?
-	var x = d3.time.scale()
-	    .range([0, width]);
-
-	// a linear scale object for the y axis?
-	var y = d3.scale.linear()
-	    .range([height, 0]);
-
-			// "an ordinal scale with a range of ten categorical colours"
-	var color = d3.scale.category10();
-
-	// a bottom-aligned X axis
-	var xAxis = d3.svg.axis()
-	    .scale(x)
-	    .orient("bottom");
-
-			// a left-aligned Y axis 
-	var yAxis = d3.svg.axis()
-	    .scale(y)
-	    .orient("left");
-
-			// a line object
-	var line = d3.svg.line()
-	    .interpolate("basis")
-	    .x(function(d) { return x(d.date); })
-	    .y(function(d) { return y(d.power); });
-
 			// append an SVG element to body
 			// giving it the width and height configured above
 	var svg = d3.select("body").append("svg")
@@ -68,15 +32,25 @@ body {
 	    return;
 	  }
 
+	  color.domain(["rain"]);
 	// so we extract the list of timestamp/value pairs
 	data = allData.rain.total.data;
-	  color.domain(d3.keys(data));
 		
 
 		// ... and convert the timestamp into a JS Date object
 	  data.forEach(function(d) {
 	    d[0] = new Date(d[0]);
 	  });
+		
+		if (data.length > 0)
+		{
+			barWidth = width / data.length;
+		}
+		else
+		{
+			barWidth = width;
+		}
+		console.log("Bar width " + barWidth);
 
 	  var cities = color.domain().map(function(name) {
 	    return {
@@ -87,7 +61,11 @@ body {
 	    };
 	  });
 
-	  x.domain(d3.extent(data, function(d) { return d[0]; }));
+	  var extent = d3.extent(data, function(d) { return d[0]; });
+	  var endDate = new Date(extent[1]);
+	  endDate.setHours(endDate.getHours() + 1);
+	  extent[1] = endDate;
+	  x.domain(extent);
 
     // if min goes < 0 we want to multiply by 1.1 so that the magnitude gets *bigger*
     var min = d3.min(cities, function(c) { return d3.min(c.values, function(v) { return v.power; }); });
@@ -109,7 +87,7 @@ body {
 	      .attr("y", 6)
 	      .attr("dy", "-3em")
 	      .style("text-anchor", "end")
-	      .text("Temperature (\u00B0C)");
+	      .text("Precipitation (mm)");
 
 var div = d3.select("body").append("div")   
     .attr("class", "tooltip")               
@@ -119,32 +97,24 @@ var div = d3.select("body").append("div")
 	      .data(cities)
 	    .enter().append("g")
 	      .attr("class", "city");
-
-	  city.append("path")
-	      .attr("class", "line")
-	      .attr("d", function(d) { return line(d.values); })
-	      .style("stroke", function(d) { return color(d.name); });
 				
-		var point = city.selectAll(".point")
+		var point = city.selectAll(".bar")
         .data(function(d) { return d.values; })
-        .enter().append("svg:circle")
-         .attr("class", "point")
-         .attr("stroke", function(d) { return color(d.series) });
-         
-         point
-         .attr("fill", function(d, i) { return "none"; return color(d.series) })
-         .attr("cx", function(d, i) { return x(d.date) })
-         .attr("cy", function(d, i) { return y(d.power) })
-         .attr("r", function(d, i) { return 3 })
+        .enter().append("rect")
+         .attr("class", "bar")
+         .attr("fill", function(d, i) { return color(d.series) })
+         .attr("x", function(d, i) { console.log(d.date + ", " + x(d.date)); return x(d.date) })
+         .attr("y", function(d, i) { return y(d.power) })
+				 .attr("width", barWidth)
+				 .attr("height", function(d) { return height - y(d.power); })
          .on("mouseover", function(d) {
             var parent = d3.select(this.parentElement).selectAll('.line');
             this.style.opacity = 1;
             div.transition()
             .duration(200)
             .style("opacity", .9)
-            .style("border", "2px solid " + color(d.series))
-            .style("background-color", "white");
-            div .html(formatTime(d.date) + "<br />" + d.power + " &deg;C")
+            .style("border-color", color(d.series));
+            div .html(formatTime(d.date) + "<br />" + d.power + " mm")
             .style("left", 5 + d3.event.pageX + "px")
             .style("top", (d3.event.pageY - 28) + "px");
             
@@ -153,15 +123,6 @@ var div = d3.select("body").append("div")
             this.style.opacity = "";
             div.style.opacity = 0;
         })
-
-
-
-	  city.append("text")
-	      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
-	      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.power) + ")"; })
-	      .attr("x", 3)
-	      .attr("dy", ".35em")
-	      .text(function(d) {return d.name; });
 	});
 
 	
