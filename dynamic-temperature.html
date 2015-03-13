@@ -23,6 +23,10 @@ var line = d3.svg.line()
 	.y(function(d) {
 		return y(d.power);
 	});
+	
+var formatValue = function(s) {
+    return Math.round(s);
+}
 
 // append an SVG element to body
 // giving it the width and height configured above
