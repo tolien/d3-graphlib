@@ -37,13 +37,15 @@ var svg = d3.select("body").append("svg")
 	.append("g")
 	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-
+// and set up a clipping path - anything outside this region will not be drawn
+// this is used as part of updating the chart
 svg.append("defs").append("clipPath")
 	.attr("id", "clip")
 	.append("rect")
-	.attr("width", width)
+	.attr("width", width * 1.2)
 	.attr("height", height);
 
+// as the class name suggests, add the vertical...
 svg.append("g")
 	.attr("class", "grid")
 	.attr("transform", "translate(0," + height + ")")
@@ -52,34 +54,56 @@ svg.append("g")
 			.tickSize(-height, 0, 0)
 	});
 
+// ...and horizontal grid lines
+// note that these are drawn relative to the axes
+// so negative sizes extend rightwards and upwards
 svg.append("g")
 	.attr("class", "grid")
 	.call(function() {
 		return yAxis
 			.tickSize(-width, 0, 0)
 	});
+	
+	svg.append("g")
+		.attr("class", "x axis")
+		.attr("transform", "translate(0," + height + ")")
 
-// load the JSON data
-// at this point, data looks like 
-// power: [ data: [ [ timestamp, power ]...[ timestamp, power] ], period: date range ]
-d3.json("http://weather.tolien.co.uk/day-data.json", function(error, allData) {
+	svg.append("g")
+		.attr("class", "y axis")
+		.append("text")
+		.attr("transform", "rotate(-90)")
+		.attr("y", 6)
+		.attr("dy", "-3em")
+		.style("text-anchor", "end")
+		.text("Temperature (\u00B0C)");
+		
+
+	var div = d3.select("body").append("div")
+		.attr("class", "tooltip")
+		.style("opacity", 0);
+		
+
+var doStuff = function(error, allData) {
+	// when this is called we should have loaded the JSON from afar
+	// or an error's occurred - handle that first
 	if (error) {
 		console.log(error);
 		return;
 	}
-
+	// at this point, allData looks like (with other keys for pressure, precipitation etc.)
+	// temp: {avg: [ [timestamp, data point], [timestamp, data point]] }
 	// so we extract the list of timestamp/value pairs
 	var data = allData.temp.avg.data;
-	// this should be a list of the series names
+	
+	// set up an ordinal scale to colour the line
 	color.domain(["Average"]);
-
 
 	// ... and convert the timestamp into a JS Date object
 	data.forEach(function(d) {
 		d[0] = new Date(d[0]);
 	});
-
-	var cities = color.domain().map(function(name) {
+	
+	var tempData = color.domain().map(function(name) {
 		return {
 			name: name,
 			values: data.map(function(d) {
@@ -92,121 +116,37 @@ d3.json("http://weather.tolien.co.uk/day-data.json", function(error, allData) {
 		};
 	});
 
+	
+	// set up the X domain as the extent of the date ranges
 	x.domain(d3.extent(data, function(d) {
 		return d[0];
 	}));
 
-	y.domain([
-		d3.min(cities, function(c) {
-			return Math.floor(0.9 * d3.min(c.values, function(v) {
-				return v.power;
-			}));
-		}),
-		d3.max(cities, function(c) {
-			return Math.ceil(1.1 * d3.max(c.values, function(v) {
-				return v.power;
-			}));
-		})
-	]);
-
-	svg.append("g")
-		.attr("class", "x axis")
-		.attr("transform", "translate(0," + height + ")")
-		.call(xAxis);
-
-	svg.append("g")
-		.attr("class", "y axis")
-		.call(yAxis)
-		.append("text")
-		.attr("transform", "rotate(-90)")
-		.attr("y", 6)
-		.attr("dy", "-3em")
-		.style("text-anchor", "end")
-		.text("Temperature (\u00B0C)");
-
-	var div = d3.select("body").append("div")
-		.attr("class", "tooltip")
-		.style("opacity", 0);
-
-	var city = svg.selectAll(".city")
-		.data(cities)
+	var temp = svg.selectAll(".temp")
+		.data(tempData)
 		.enter().append("g")
-		.attr("class", "city")
+		.attr("class", "temp")
 		.attr("clip-path", "url(#clip)");
 
-	city.append("path")
+    
+  	// draw the line itself	
+	d3.select('g.temp').append("path")
 		.attr("class", "line")
-		.attr("d", function(d) {
-			return line(d.values);
-		})
-		.style("stroke", function(d) {
-			return color(d.name);
-		});
+		.attr("d", function(d) { return line(d.values); })
+		.style("stroke", function(d) { return color(d.name); });
 
-	var point = city.selectAll(".point")
-		.data(function(d) {
-			return d.values;
-		})
-		.enter().append("svg:circle")
-		.attr("class", "point")
-		.attr("stroke", function(d) {
-			return color(d.series)
-		});
+	
 
-	point
-		.attr("fill", function(d, i) {
-			return "none";
-			return color(d.series)
-		})
-		.attr("cx", function(d, i) {
-			return x(d.date)
-		})
-		.attr("cy", function(d, i) {
-			return y(d.power)
-		})
-		.attr("r", function(d, i) {
-			return 3
-		})
-		.on("mouseover", function(d) {
-			var div = d3.selectAll('.tooltip')
-			var parent = d3.select(this.parentElement).selectAll('.line');
-			this.style.opacity = 1;
-			div.transition()
-				.duration(200)
-				.style("opacity", null)
-				.style("border-color", color(d.series));
-			div.html(formatTime(d.date) + "<br />" + d.power + " &deg;C")
-				.style("left", 5 + d3.event.pageX + "px")
-				.style("top", (d3.event.pageY - 28) + "px");
+		updateTempChart();
+		
+};
 
-		})
-		.on("mouseout", function(d) {
-			this.style.opacity = "";
-			div.style.opacity = 0;
-		})
-
-
-
-	city.append("text")
-		.datum(function(d) {
-			return {
-				name: d.name,
-				value: d.values[d.values.length - 1]
-			};
-		})
-		.attr("transform", function(d) {
-			return "translate(" + x(d.value.date) + "," + y(d.value.power) + ")";
-		})
-		.attr("x", 3)
-		.attr("dy", ".35em")
-		.text(function(d) {
-			return d.name;
-		});
-
-});
+// load the JSON data
+// and when that's finished, called the function defined in doStuff
+d3.json("http://weather.tolien.co.uk/day-data.json", doStuff);
 
 function force_update() {
-	var points = d3.select('.temp').select('.city');
+	var points = d3.select('.temp').select('.temp');
 	var data = points.data();
 	var removed = data[0].values[0];
 
@@ -220,84 +160,16 @@ function force_update() {
 		power: removed.power,
 		series: removed.series
 	});
+	
 	x.domain(d3.extent(data[0].values.slice(1), function(d) {
 		return d.date;
 	}));
 
 
-	var t0 = points.data(data)
-	points
-		.select('path')
-		.attr("d", function(d) {
-			return line(d.values);
-		})
-		.attr("transition", null)
-		.transition(0).ease("linear");
+	var t0 = points.data(data);
 
-	var min = d3.min(data, function(c) {
-		return Math.floor(0.9 * d3.min(c.values, function(v) {
-			return v.power;
-		}))
-	});
-	var max = d3.max(data, function(c) {
-		return Math.ceil(1.1 * d3.max(c.values, function(v) {
-			return v.power;
-		}))
-	});
-	/*
-	y.domain([
-    
-		d3.min(data, function(c) { return Math.floor(d3.min(c.values, function(v) { return v.power; })); }),
-		d3.max(data, function(c) { return Math.ceil(d3.max(c.values, function(v) { return v.power; })); })
-	]);
-*/
-
-
-	t0.transition().selectAll('.x.axis')
-		.transition()
-		.call(xAxis);
-
-	t0.transition().selectAll('.y.axis')
-		.transition()
-		.call(yAxis);
-
-
-	var point = points.selectAll('.point')
-		.data(function(d) {
-			return d.values;
-		})
-
-	point.enter().append("svg:circle")
-		.attr("class", "point")
-		.attr("r", function(d, i) {
-			return 3
-		})
-		.attr("fill", function(d, i) {
-			return "none";
-			return color(d.series)
-		})
-		.attr("stroke", function(d) {
-			return color(d.series)
-		});
-
-
-	t0.selectAll('.point').transition(500)
-		.ease("elastic")
-		.attr("cx", function(d, i) {
-			if (x(d.date) < 0) {
-				this.remove();
-			}
-			return x(d.date)
-		})
-		.attr("cy", function(d, i) {
-			return y(d.power)
-		});
-
-	point.exit()
-		.transition()
-		.remove();
-
-
+	updateTempChart();
+	
 	data[0].values.shift();
 
 
@@ -306,6 +178,10 @@ function force_update() {
 	div = d3.select("body").append("div")
 		.attr("class", "tooltip")
 		.style("opacity", 0);
+		
+  return true;
+
+
 
 }
 
