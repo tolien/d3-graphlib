@@ -26,7 +26,7 @@ body {
 			// load the JSON data
 			// at this point, data looks like 
 			// power: [ data: [ [ timestamp, power ]...[ timestamp, power] ], period: date range ]
-	d3.json("http://beta.weather.tolien.co.uk/day-data.json", function(error, allData) {
+	d3.json("http://weather.tolien.co.uk/day-data.json", function(error, allData) {
 	  if (error) {
 	    console.log(error);
 	    return;
