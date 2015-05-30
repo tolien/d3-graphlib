@@ -35,9 +35,13 @@ function chart(selection) {
 	    .orient("left");
 
 
-function updateTempChart() {
+function updateTempChart(transition) {
 	var data = d3.selectAll('g.temp').data();
 	
+	x.domain(d3.extent(data[0].values, function(d) {
+		return d.date;
+	}));
+
 	var min = d3.min(data, function(c) {
 		return Math.floor(0.9 * d3.min(c.values, function(v) {
 			return v.power;
@@ -51,7 +55,11 @@ function updateTempChart() {
 
 	y.domain([min, max]);
 
-	var t1 = d3.transition().select('.temp');
+		if (transition) {
+			var t1 = transition;
+		} else {
+			var t1 = d3.transition().select('.temp');
+		}
 
 	t1.selectAll('.x.axis')
 		.transition(0)
@@ -75,7 +83,6 @@ function updateTempChart() {
 	point
 		.attr("fill", function(d, i) {
 			return "none";
-			return color(d.series)
 		})
 		.attr("cx", function(d, i) {
 			return x(d.date)
@@ -119,14 +126,29 @@ function updateTempChart() {
 		.attr("cy", function(d, i) {
 			return y(d.power)
 		});
+
+    var pathSelection = d3.select('g.temp');
+    var firstRun = (pathSelection.select('path').size() == 0);
+    
+    if (firstRun) {
+      	// draw the line itself	
+	    d3.select('g.temp').append("path")
+		    .attr("class", "line")
+    		.attr("d", function(d) { return line(d.values); })
+	    	.style("stroke", function(d) { return color(d.name); });	
+	}
+	else {
+		var move = x(data[0].values[0].date);
 		
-	t1.select('g.temp').select('path')
-		.attr("d", function(d) {
-			return line(d.values);
-		})
-		.attr("transform", null)
-		.transition().duration(500).ease("linear")
-//		.attr("transform", "translate(" + x(data[0].values[0].date) + ")");
+    	t1.select('.line')
+	    	.attr("d", function(d) {
+		    	return line(d.values);
+    		})
+	    	.attr("transform", null)
+		    .transition().duration(500).ease("linear")
+    		.attr("transform", "translate(-" + move + ",0)");
+    }
+
 
   d3.timer(force_update, 5000);
 

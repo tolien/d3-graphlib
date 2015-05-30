@@ -117,25 +117,10 @@ var doStuff = function(error, allData) {
 	});
 
 	
-	// set up the X domain as the extent of the date ranges
-	x.domain(d3.extent(data, function(d) {
-		return d[0];
-	}));
-
-	var temp = svg.selectAll(".temp")
+	var temp = svg.append("g")
 		.data(tempData)
-		.enter().append("g")
 		.attr("class", "temp")
 		.attr("clip-path", "url(#clip)");
-
-    
-  	// draw the line itself	
-	d3.select('g.temp').append("path")
-		.attr("class", "line")
-		.attr("d", function(d) { return line(d.values); })
-		.style("stroke", function(d) { return color(d.name); });
-
-	
 
 		updateTempChart();
 		
@@ -161,18 +146,13 @@ function force_update() {
 		series: removed.series
 	});
 	
-	x.domain(d3.extent(data[0].values.slice(1), function(d) {
-		return d.date;
-	}));
-
-
-	var t0 = points.data(data);
-
-	updateTempChart();
+	var t0 = d3.select('.temp');
+	t0.select('.temp').data(data);
 	
 	data[0].values.shift();
 
 
+	updateTempChart(t0);
 	d3.selectAll('.tooltip').remove();
 
 	div = d3.select("body").append("div")
