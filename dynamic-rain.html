@@ -1,0 +1,261 @@
+<html>
+<link rel="stylesheet" type="text/css" href="d3chart.css" />
+<style>
+
+body {
+  font-family: sans-serif;
+  font-size: smaller;
+}
+
+</style>
+<body>
+	<script src="d3.js" charset="utf-8"></script>
+	<script src="d3chart.js" charset="utf-8"></script>
+	
+
+	<script>
+// append an SVG element to body
+// giving it the width and height configured above
+var svg = d3.select("body").append("svg")
+	.attr("class", "rain")
+	.attr("width", width + margin.left + margin.right)
+	.attr("height", height + margin.top + margin.bottom)
+	.append("g")
+	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var doStuff = function(error, allData) {
+	if (error) {
+		console.log(error);
+		return;
+	}
+
+	color.domain(["rain"]);
+	// so we extract the list of timestamp/value pairs
+	data = allData.rain.total.data;
+
+
+	// ... and convert the timestamp into a JS Date object
+	data.forEach(function(d) {
+		d[0] = new Date(d[0]);
+	});
+
+	if (data.length > 0) {
+		barWidth = width / data.length;
+	} else {
+		barWidth = width;
+	}
+	console.log("Bar width " + barWidth);
+
+	var cities = color.domain().map(function(name) {
+		return data.map(function(d) {
+		    return {
+				date: d[0],
+				power: +d[1].toFixed(1),
+				series: name
+			}
+		});
+	});
+	
+	var extent = d3.extent(data, function(d) {
+		return d[0];
+	});
+	var endDate = new Date(extent[1]);
+	endDate.setHours(endDate.getHours() + 1);
+	extent[1] = endDate;
+	x.domain(extent);
+
+	// if min goes < 0 we want to multiply by 1.1 so that the magnitude gets *bigger*
+	var min = d3.min(cities, function(c) {
+		return d3.min(c, function(v) {
+			return v.power;
+		});
+	});
+	y.domain([
+		min < 0 ? min * 1.1 : min * 0.9,
+		d3.max(cities, function(c) {
+			return 1.1 * d3.max(c, function(v) {
+				return v.power;
+			});
+		})
+	]);
+
+	var div = d3.select("body").append("div")
+		.attr("class", "tooltip")
+		.style("opacity", 0);
+
+svg.append("g")
+	.attr("class", "x axis")
+	.attr("transform", "translate(0," + height + ")")
+	.call(xAxis);
+
+svg.append("g")
+	.attr("class", "y axis")
+	.call(yAxis)
+	.append("text")
+	.attr("transform", "rotate(-90)")
+	.attr("y", 6)
+	.attr("dy", "-3em")
+	.style("text-anchor", "end")
+	.text("Precipitation (mm)");
+
+
+	var city = svg.selectAll(".city")
+		.data(cities, function (d) { return d.date; })
+		.enter().append("g")
+		.attr("class", "city");
+
+	var point = city.selectAll(".bar")
+		.data(function(d) {
+			return d;
+		}, function(d) { return d.date} )
+		.enter().append("rect")
+		.attr("class", "bar")
+		.attr("fill", function(d, i) {
+			return color("rain")
+		})
+		.attr("x", function(d, i) {
+			console.log(d.date + ", " + x(d.date));
+			return x(d.date)
+		})
+		.attr("y", function(d, i) {
+			return y(d.power)
+		})
+		.attr("width", barWidth)
+		.attr("height", function(d) {
+			return height - y(d.power);
+		})
+		.on("mouseover", function(d) {
+			var parent = d3.select(this.parentElement).selectAll('.line');
+			this.style.opacity = 1;
+			div.transition()
+				.duration(200)
+				.style("opacity", .9)
+				.style("border-color", color(d.series));
+			div.html(formatTime(d.date) + "<br />" + d.power + " mm")
+				.style("left", 5 + d3.event.pageX + "px")
+				.style("top", (d3.event.pageY - 28) + "px");
+
+		})
+		.on("mouseout", function(d) {
+			console.log("mouseout");
+			this.style.opacity = 0.7;
+			div.style('opacity', 0);
+		})
+};
+
+
+svg.append("g")
+	.attr("class", "grid")
+	.attr("transform", "translate(0," + height + ")")
+	.call(function() {
+		return xAxis
+			.tickSize(-height, 0, 0)
+	})
+
+svg.append("g")
+	.attr("class", "grid")
+	.call(function() {
+		return yAxis
+			.tickSize(-width, 0, 0)
+	})
+
+// load the JSON data
+// at this point, data looks like 
+// power: [ data: [ [ timestamp, power ]...[ timestamp, power] ], period: date range ]
+d3.json("http://weather.tolien.co.uk/month-data.json", doStuff);
+
+
+function force_update() {
+    var transitionTime = 0;
+	var points = d3.select('.rain').select('.city');
+	var data = points.data();
+	var removed = data[0][0]
+	var cloneDate = new Date(removed.date.getTime() + 24 * 60 * 60 * 1000);
+	data[0].push({
+		date: cloneDate,
+		power: removed.power,
+		series: removed.series
+	});
+
+	data[0].shift();
+
+	var extent = d3.extent(data[0], function(d) {
+		return d.date;
+	});
+	var endDate = new Date(extent[1]);
+	endDate.setHours(endDate.getHours() + 1);
+	extent[1] = endDate;
+	x.domain(extent);
+
+	d3.selectAll('.x.axis')
+		.transition()
+		.duration(transitionTime)
+		.call(xAxis);
+
+	d3.selectAll('.y.axis')
+		.transition()
+		.duration(transitionTime)
+		.call(yAxis);
+		
+		var bars = points.selectAll('.bar')
+		.data(function(d) {
+			return d;
+		}, function(d) { return d.date; });
+
+	var div = d3.select("body").append("div")
+		.attr("class", "tooltip")
+		.style("opacity", 0);
+
+        bars.enter().append("rect")
+         .attr("class", "bar")
+         .attr("fill", function(d, i) { return color(d.series) })
+         .attr("x", function(d, i) { return x(d.date) })
+         .attr("y", function(d, i) { return y(d.power) })
+				 .attr("width", barWidth)
+				 .attr("height", function(d) { return height - y(d.power); })
+         .on("mouseover", function(d) {
+            var parent = d3.select(this.parentElement).selectAll('.line');
+            this.style.opacity = 1;
+            div.transition()
+            .duration(200)
+            .style("opacity", .9)
+            .style("border-color", color(d.series));
+            div .html(formatTime(d.date) + "<br />" + d.power + " mm")
+            .style("left", 5 + d3.event.pageX + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
+            
+        })
+        .on("mouseout", function(d) {
+            this.style('opacity', 0.9);
+            div.style('opacity', 0);
+        })
+	
+
+		bars
+		.transition()
+		.duration(transitionTime)
+		.attr("x", function(d, i) {
+			//console.log(d.date + ", " + x(d.date));
+			return x(d.date)
+		})
+		.attr("y", function(d, i) {
+			return y(d.power)
+		})
+		.attr("height", function(d) {
+			return height - y(d.power);
+		});
+		
+		bars.exit()
+    		.transition(transitionTime)
+	    	.remove();
+		
+		
+
+
+}
+	</script>
+	
+	<input type="button" onclick="force_update()" value="Update" />
+</body>
+
+</html>
