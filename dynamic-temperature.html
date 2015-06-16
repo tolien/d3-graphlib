@@ -25,7 +25,7 @@ var line = d3.svg.line()
 	});
 	
 var formatValue = function(s) {
-    return Math.round(s);
+    return s.toFixed(1);
 }
 
 // append an SVG element to body
