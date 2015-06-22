@@ -117,18 +117,31 @@ var doStuff = function(error, allData) {
 	});
 
 	
-	var temp = svg.append("g")
-		.data(tempData)
-		.attr("class", "temp")
-		.attr("clip-path", "url(#clip)");
-
-		updateTempChart();
+	var t0 = d3.select('.temp');
+	if (!t0.select('g.temp').empty()) {
+    	t0.select('g.temp').data(tempData);
+    }
+    else {
+        svg.append("g")
+		    .data(tempData)
+    		.attr("class", "temp")
+	    	.attr("clip-path", "url(#clip)");
+	}
+		updateTempChart(t0);
 		
 };
 
-// load the JSON data
-// and when that's finished, called the function defined in doStuff
-d3.json("http://weather.tolien.co.uk/day-data.json", doStuff);
+
+var update_data = function() {
+    console.log("update_data fired at " + new Date().toString());
+    // load the JSON data
+    // and when that's finished, called the function defined in doStuff
+    d3.json("http://weather.tolien.co.uk/day-data.json", doStuff);
+    
+    return true;
+}
+update_data();
+d3.timer(update_data, 5 * 60 * 1000);
 
 function force_update() {
 	var points = d3.select('.temp').select('.temp');
