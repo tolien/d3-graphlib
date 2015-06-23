@@ -133,6 +133,7 @@ var doStuff = function(error, allData) {
 
 
 var update_data = function() {
+	d3.timer(update_data, 5 * 60 * 1000);
     console.log("update_data fired at " + new Date().toString());
     // load the JSON data
     // and when that's finished, called the function defined in doStuff
@@ -141,7 +142,6 @@ var update_data = function() {
     return true;
 }
 update_data();
-d3.timer(update_data, 5 * 60 * 1000);
 
 function force_update() {
 	var points = d3.select('.temp').select('.temp');
