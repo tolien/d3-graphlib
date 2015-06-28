@@ -10,33 +10,81 @@ function chart(selection) {
 	    width = 600 - margin.left - margin.right,
 	    height = 300 - margin.top - margin.bottom;
 
+	var x, y, color, xAxis, yAxis, svg;
+	
+function setup() {
 	// a time scale object for the x axis?
-	var x = d3.time.scale()
-	    .range([0, width]);
+	 x = d3.time.scale()
+		.range([0, width]);
 
 	// a linear scale object for the y axis?
-	var y = d3.scale.linear()
-	    .range([height, 0]);
+	 y = d3.scale.linear()
+		.range([height, 0]);
 
 	// "an ordinal scale with a range of ten categorical colours"
-	var color = d3.scale.category10();
+	 color = d3.scale.category10();
 
 	// a bottom-aligned X axis
-	var xAxis = d3.svg.axis()
-	    .scale(x)
-	    .orient("bottom");
-	    
+	 xAxis = d3.svg.axis()
+		.scale(x)
+		.orient("bottom");
+
 	// suppress the beginning/end ticks
 	xAxis.outerTickSize(0);
 
 	// a left-aligned Y axis 
-	var yAxis = d3.svg.axis()
-	    .scale(y)
-	    .orient("left");
+	 yAxis = d3.svg.axis()
+		.scale(y)
+		.orient("left");
 
+	// append an SVG element to body
+	// giving it the width and height configured above
+	 svg = d3.select("body").append("svg")
+		.attr("width", width + margin.left + margin.right)
+		.attr("height", height + margin.top + margin.bottom)
+		.append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	// as the class name suggests, add the vertical...
+	svg.append("g")
+		.attr("class", "grid")
+		.attr("transform", "translate(0," + height + ")")
+		.call(function() {
+			return xAxis
+				.tickSize(-height, 0, 0)
+		});
 
 function updateTempChart(transition) {
 	var data = d3.selectAll('g.temp').data();
+	// ...and horizontal grid lines
+	// note that these are drawn relative to the axes
+	// so negative sizes extend rightwards and upwards
+	svg.append("g")
+		.attr("class", "grid")
+		.call(function() {
+			return yAxis
+				.tickSize(-width, 0, 0)
+		});
+		
+	svg.append("g")
+		.attr("class", "x axis")
+		.attr("transform", "translate(0," + height + ")")
+		
+
+	svg.append("g")
+		.attr("class", "y axis")
+		.append("text")
+		.attr("transform", "rotate(-90)")
+		.attr("y", 6)
+		.attr("dy", "-3em")
+		.style("text-anchor", "end");
+		
+
+var div = d3.select("body").append("div")   
+    .attr("class", "tooltip")               
+    .style("opacity", 0);
+};
+	
 	
 	x.domain(d3.extent(data[0].values, function(d) {
 		return d.date;
