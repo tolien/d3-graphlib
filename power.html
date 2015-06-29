@@ -36,7 +36,7 @@ body {
 			// load the JSON data
 			// at this point, data looks like 
 			// power: [ data: [ [ timestamp, power ]...[ timestamp, power] ], period: date range ]
-	d3.json("http://data.tolien.co.uk/power/data.json", function(error, data) {
+var doStuff = function(error, data) {
 	  if (error) {
 	    console.log(error);
 	    return;
@@ -89,13 +89,13 @@ body {
 	      .style("stroke", function(d) { return color(d.name); });
 				
 		var point = city.selectAll(".point")
-        .data(function(d) { console.log("Adding point " + d.name); return d.values; })
+        .data(function(d) { return d.values; })
         .enter().append("svg:circle")
          .attr("class", "point")
          .attr("stroke", function(d) { return color(d.name) });
          
          point
-         .attr("fill", function(d, i) { console.log(color(d.series)); return color(d.series) })
+         .attr("fill", function(d, i) { return color(d.series) })
          .attr("cx", function(d, i) { return x(d.date) })
          .attr("cy", function(d, i) { return y(d.power) })
          .attr("r", function(d, i) { return 2 })
@@ -125,8 +125,10 @@ body {
 	      .attr("x", 3)
 	      .attr("dy", ".35em")
 	      .text(function(d) { return d.name; });
-	});
+	};
 	
+		d3.json("http://data.tolien.co.uk/power/data.json", doStuff);
+
 
 	</script>
 </body>
