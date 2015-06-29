@@ -19,44 +19,19 @@ body {
 	var margin = {top: 20, right: 80, bottom: 30, left: 50},
 	    width = 960 - margin.left - margin.right,
 	    height = 500 - margin.top - margin.bottom;
+	setup();
 
 	// date parser - will convert YYYYMMDD dates into JS Date objects
 	var parseDate = d3.time.format("%Y%m%d").parse;
-
-	// a time scale object for the x axis?
-	var x = d3.time.scale()
-	    .range([0, width]);
-
-	// a linear scale object for the y axis?
-	var y = d3.scale.linear()
-	    .range([height, 0]);
-
-			// "an ordinal scale with a range of ten categorical colours"
-	var color = d3.scale.category10();
-
-	// a bottom-aligned X axis
-	var xAxis = d3.svg.axis()
-	    .scale(x)
-	    .orient("bottom");
-
-			// a left-aligned Y axis 
-	var yAxis = d3.svg.axis()
-	    .scale(y)
-	    .orient("left");
 
 			// a line object
 	var line = d3.svg.line()
 	    .interpolate("cardinal")
 	    .x(function(d) { return x(d.date); })
 	    .y(function(d) { return y(d.power); });
-
-			// append an SVG element to body
-			// giving it the width and height configured above
-	var svg = d3.select("body").append("svg")
-	    .attr("width", width + margin.left + margin.right)
-	    .attr("height", height + margin.top + margin.bottom)
-	  .append("g")
-	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+			
+			d3.select('.y.axis text').attr("dy", ".71em").text("Power (W)");
+			
 
 			// load the JSON data
 			// at this point, data looks like 
@@ -91,25 +66,17 @@ body {
 	    0,
 	    d3.max(cities, function(c) { return d3.max(c.values, function(v) { return v.power; }); })
 	  ]);
+		
 
-	  svg.append("g")
-	      .attr("class", "x axis")
-	      .attr("transform", "translate(0," + height + ")")
-	      .call(xAxis);
+	d3.selectAll('.x.axis')
+		.transition(0)
+		.call(xAxis);
 
-	  svg.append("g")
-	      .attr("class", "y axis")
-	      .call(yAxis)
-	    .append("text")
-	      .attr("transform", "rotate(-90)")
-	      .attr("y", 6)
-	      .attr("dy", ".71em")
-	      .style("text-anchor", "end")
-	      .text("Power (W)");
+	d3.selectAll('.y.axis')
+		.transition(0)
+		.call(yAxis);
 
-var div = d3.select("body").append("div")   
-    .attr("class", "tooltip")               
-    .style("opacity", 0);
+
         
 	  var city = svg.selectAll(".city")
 	      .data(cities)
@@ -160,18 +127,6 @@ var div = d3.select("body").append("div")
 	      .text(function(d) { return d.name; });
 	});
 	
-	svg.append("g")         
-        .attr("class", "grid")
-        .attr("transform", "translate(0," + height + ")")
-        .call(function() { return xAxis
-            .tickSize(-height, 0, 0)
-        })
-        
-    svg.append("g")         
-        .attr("class", "grid")
-        .call(function() { return yAxis
-            .tickSize(-width, 0, 0)
-        })
 
 	</script>
 </body>
