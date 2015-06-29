@@ -41,10 +41,6 @@ svg.append("defs").append("clipPath")
 	
 	d3.select('.y.axis text').text("Temperature (\u00B0C)");
 
-	var div = d3.select("body").append("div")
-		.attr("class", "tooltip")
-		.style("opacity", 0);
-		
 
 var doStuff = function(error, allData) {
 	// when this is called we should have loaded the JSON from afar
