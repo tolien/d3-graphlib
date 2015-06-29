@@ -20,10 +20,6 @@ body {
 
 	d3.select('.y.axis text').text("Precipitation (mm)");
 
-var div = d3.select("body").append("div")
-	.attr("class", "tooltip")
-	.style("opacity", 0);
-
 var doStuff = function(error, allData) {
 	if (error) {
 		console.log(error);
