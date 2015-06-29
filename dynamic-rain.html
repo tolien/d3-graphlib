@@ -14,14 +14,15 @@ body {
 	
 
 	<script>
-// append an SVG element to body
-// giving it the width and height configured above
-var svg = d3.select("body").append("svg")
-	.attr("class", "rain")
-	.attr("width", width + margin.left + margin.right)
-	.attr("height", height + margin.top + margin.bottom)
-	.append("g")
-	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	setup();
+	d3.selectAll('svg').attr('class', 'rain');
+
+	d3.select('.y.axis text').text("Precipitation (mm)");
+
+var div = d3.select("body").append("div")
+	.attr("class", "tooltip")
+	.style("opacity", 0);
 
 var doStuff = function(error, allData) {
 	if (error) {
@@ -56,49 +57,6 @@ var doStuff = function(error, allData) {
 		});
 	});
 	
-	var extent = d3.extent(data, function(d) {
-		return d[0];
-	});
-	var endDate = new Date(extent[1]);
-	endDate.setHours(endDate.getHours() + 1);
-	extent[1] = endDate;
-	x.domain(extent);
-
-	// if min goes < 0 we want to multiply by 1.1 so that the magnitude gets *bigger*
-	var min = d3.min(cities, function(c) {
-		return d3.min(c, function(v) {
-			return v.power;
-		});
-	});
-	y.domain([
-		min < 0 ? min * 1.1 : min * 0.9,
-		d3.max(cities, function(c) {
-			return 1.1 * d3.max(c, function(v) {
-				return v.power;
-			});
-		})
-	]);
-
-	var div = d3.select("body").append("div")
-		.attr("class", "tooltip")
-		.style("opacity", 0);
-
-svg.append("g")
-	.attr("class", "x axis")
-	.attr("transform", "translate(0," + height + ")")
-	.call(xAxis);
-
-svg.append("g")
-	.attr("class", "y axis")
-	.call(yAxis)
-	.append("text")
-	.attr("transform", "rotate(-90)")
-	.attr("y", 6)
-	.attr("dy", "-3em")
-	.style("text-anchor", "end")
-	.text("Precipitation (mm)");
-
-
 	var city = svg.selectAll(".city")
 		.data(cities, function (d) { return d.date; })
 		.enter().append("g")
@@ -142,22 +100,6 @@ svg.append("g")
 			div.style('opacity', 0);
 		})
 };
-
-
-svg.append("g")
-	.attr("class", "grid")
-	.attr("transform", "translate(0," + height + ")")
-	.call(function() {
-		return xAxis
-			.tickSize(-height, 0, 0)
-	})
-
-svg.append("g")
-	.attr("class", "grid")
-	.call(function() {
-		return yAxis
-			.tickSize(-width, 0, 0)
-	})
 
 // load the JSON data
 // at this point, data looks like 

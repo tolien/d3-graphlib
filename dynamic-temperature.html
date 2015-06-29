@@ -28,14 +28,8 @@ var formatValue = function(s) {
     return s.toFixed(1);
 }
 
-// append an SVG element to body
-// giving it the width and height configured above
-var svg = d3.select("body").append("svg")
-	.attr("class", "temp")
-	.attr("width", width + margin.left + margin.right)
-	.attr("height", height + margin.top + margin.bottom)
-	.append("g")
-	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+setup();
+d3.selectAll('svg').attr('class', 'temp');
 
 // and set up a clipping path - anything outside this region will not be drawn
 // this is used as part of updating the chart
@@ -44,39 +38,8 @@ svg.append("defs").append("clipPath")
 	.append("rect")
 	.attr("width", width * 1.2)
 	.attr("height", height);
-
-// as the class name suggests, add the vertical...
-svg.append("g")
-	.attr("class", "grid")
-	.attr("transform", "translate(0," + height + ")")
-	.call(function() {
-		return xAxis
-			.tickSize(-height, 0, 0)
-	});
-
-// ...and horizontal grid lines
-// note that these are drawn relative to the axes
-// so negative sizes extend rightwards and upwards
-svg.append("g")
-	.attr("class", "grid")
-	.call(function() {
-		return yAxis
-			.tickSize(-width, 0, 0)
-	});
 	
-	svg.append("g")
-		.attr("class", "x axis")
-		.attr("transform", "translate(0," + height + ")")
-
-	svg.append("g")
-		.attr("class", "y axis")
-		.append("text")
-		.attr("transform", "rotate(-90)")
-		.attr("y", 6)
-		.attr("dy", "-3em")
-		.style("text-anchor", "end")
-		.text("Temperature (\u00B0C)");
-		
+	d3.select('.y.axis text').text("Temperature (\u00B0C)");
 
 	var div = d3.select("body").append("div")
 		.attr("class", "tooltip")
