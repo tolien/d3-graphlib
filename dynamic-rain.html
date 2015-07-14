@@ -43,7 +43,7 @@ var doStuff = function(error, allData) {
 	}
 	console.log("Bar width " + barWidth);
 
-	var cities = color.domain().map(function(name) {
+	var rainData = color.domain().map(function(name) {
 		return data.map(function(d) {
 		    return {
 				date: d[0],
@@ -53,48 +53,12 @@ var doStuff = function(error, allData) {
 		});
 	});
 	
-	var city = svg.selectAll(".city")
-		.data(cities, function (d) { return d.date; })
+	var rain = svg.selectAll(".rain")
+		.data(rainData, function (d) { return d.date; })
 		.enter().append("g")
-		.attr("class", "city");
-
-	var point = city.selectAll(".bar")
-		.data(function(d) {
-			return d;
-		}, function(d) { return d.date} )
-		.enter().append("rect")
-		.attr("class", "bar")
-		.attr("fill", function(d, i) {
-			return color("rain")
-		})
-		.attr("x", function(d, i) {
-			console.log(d.date + ", " + x(d.date));
-			return x(d.date)
-		})
-		.attr("y", function(d, i) {
-			return y(d.power)
-		})
-		.attr("width", barWidth)
-		.attr("height", function(d) {
-			return height - y(d.power);
-		})
-		.on("mouseover", function(d) {
-			var parent = d3.select(this.parentElement).selectAll('.line');
-			this.style.opacity = 1;
-			div.transition()
-				.duration(200)
-				.style("opacity", .9)
-				.style("border-color", color(d.series));
-			div.html(formatTime(d.date) + "<br />" + d.power + " mm")
-				.style("left", 5 + d3.event.pageX + "px")
-				.style("top", (d3.event.pageY - 28) + "px");
-
-		})
-		.on("mouseout", function(d) {
-			console.log("mouseout");
-			this.style.opacity = 0.7;
-			div.style('opacity', 0);
-		})
+		.attr("class", "rain");
+		
+	updateRainChart();
 };
 
 // load the JSON data
@@ -104,11 +68,11 @@ d3.json("http://weather.tolien.co.uk/month-data.json", doStuff);
 
 
 function force_update() {
-  var transitionTime = 0;
-	var points = d3.select('.rain').select('.city');
+	var points = d3.select('g.rain');
 	var data = points.data();
-	var removed = data[0][0]
-	var cloneDate = new Date(removed.date.getTime() + 24 * 60 * 60 * 1000);
+	var removed = data[0][0];
+	var deltaT = (data[0][1].date.getTime() - removed.date.getTime()) * data[0].length;
+	var cloneDate = new Date(removed.date.getTime() + deltaT);
 	data[0].push({
 		date: cloneDate,
 		power: removed.power,
@@ -116,77 +80,14 @@ function force_update() {
 	});
 
 	data[0].shift();
-
-	var extent = d3.extent(data[0], function(d) {
-		return d.date;
-	});
-	var endDate = new Date(extent[1]);
-	endDate.setHours(endDate.getHours() + 1);
-	extent[1] = endDate;
-	x.domain(extent);
-
-	d3.selectAll('.x.axis')
-		.transition()
-		.duration(transitionTime)
-		.call(xAxis);
-
-	d3.selectAll('.y.axis')
-		.transition()
-		.duration(transitionTime)
-		.call(yAxis);
-		
-		var bars = points.selectAll('.bar')
-		.data(function(d) {
-			return d;
-		}, function(d) { return d.date; });
+	
+	points.data(data);
 
 	var div = d3.select("body").append("div")
 		.attr("class", "tooltip")
 		.style("opacity", 0);
 
-        bars.enter().append("rect")
-         .attr("class", "bar")
-         .attr("fill", function(d, i) { return color(d.series) })
-         .attr("x", function(d, i) { return x(d.date) })
-         .attr("y", function(d, i) { return y(d.power) })
-				 .attr("width", barWidth)
-				 .attr("height", function(d) { return height - y(d.power); })
-         .on("mouseover", function(d) {
-            var parent = d3.select(this.parentElement).selectAll('.line');
-            this.style.opacity = 1;
-            div.transition()
-            .duration(200)
-            .style("opacity", .9)
-            .style("border-color", color(d.series));
-            div .html(formatTime(d.date) + "<br />" + d.power + " mm")
-            .style("left", 5 + d3.event.pageX + "px")
-            .style("top", (d3.event.pageY - 28) + "px");
-            
-        })
-        .on("mouseout", function(d) {
-            this.style('opacity', 0.9);
-            div.style('opacity', 0);
-        })
-	
-
-		bars
-		.transition()
-		.duration(transitionTime)
-		.attr("x", function(d, i) {
-			//console.log(d.date + ", " + x(d.date));
-			return x(d.date)
-		})
-		.attr("y", function(d, i) {
-			return y(d.power)
-		})
-		.attr("height", function(d) {
-			return height - y(d.power);
-		});
-		
-		bars.exit()
-    		.transition(transitionTime)
-	    	.remove();
-		
+updateRainChart();		
 		
 
 
