@@ -103,6 +103,10 @@ var update_data = function() {
 update_data();
 
 function force_update() {
+	update_data();
+}
+
+function old_force_update() {
 	var points = d3.select('.temp').select('.temp');
 	var data = points.data();
 	var removed = data[0].values[0];
