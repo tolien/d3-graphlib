@@ -25,7 +25,7 @@ body {
 
 			// a line object
 	var line = d3.svg.line()
-	    .interpolate("cardinal")
+	    .interpolate("monotone")
 	    .x(function(d) { return x(d.date); })
 	    .y(function(d) { return y(d.power); });
 
