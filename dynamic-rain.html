@@ -64,10 +64,23 @@ var doStuff = function(error, allData) {
 // load the JSON data
 // at this point, data looks like 
 // power: [ data: [ [ timestamp, power ]...[ timestamp, power] ], period: date range ]
-d3.json("http://weather.tolien.co.uk/month-data.json", doStuff);
+var update_data = function() {
+    d3.timer(update_data, 5 * 60 * 1000);
+    console.log("update_data fired at " + new Date().toString());
+    // load the JSON data
+    // and when that's finished, called the function defined in doStuff
+    d3.json("http://weather.tolien.co.uk/month-data.json", doStuff);
 
+    return true;
+}
+
+update_data();
 
 function force_update() {
+    update_data();
+}
+
+function old_force_update() {
 	var points = d3.select('g.rain');
 	var data = points.data();
 	var removed = data[0][0];
