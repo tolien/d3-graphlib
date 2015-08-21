@@ -436,3 +436,17 @@ function updatePowerChart(transition, selection) {
     		.attr("transform", "translate(-" + move + ",0)");
     }		
 }
+	
+function log_coords(data) {
+	var list = "";
+	data[0].values.forEach(function(d) {
+		var coords = "(";
+		coords = coords + x(d.date).toFixed(2);
+		coords = coords + ", " + y(d.power).toFixed(2);
+		coords = coords + ")";
+		
+		list = list + " " + coords;
+	});
+	
+	console.log(list);
+}
