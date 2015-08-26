@@ -62,6 +62,35 @@ function setup() {
 				.tickSize(-height, 0, 0)
 		});
 
+	// ...and horizontal grid lines
+	// note that these are drawn relative to the axes
+	// so negative sizes extend rightwards and upwards
+	svg.append("g")
+		.attr("class", "grid")
+		.call(function() {
+			return yAxis
+				.tickSize(-width, 0, 0)
+		});
+	
+	svg.append("g")
+		.attr("class", "x axis")
+		.attr("transform", "translate(0," + height + ")")
+	
+
+	svg.append("g")
+		.attr("class", "y axis")
+		.append("text")
+		.attr("transform", "rotate(-90)")
+		.attr("y", 6)
+		.attr("dy", "-3em")
+		.style("text-anchor", "end");
+	
+
+    div = d3.select("body").append("div")   
+        .attr("class", "tooltip")               
+        .style("opacity", 0);
+};
+
 function updateTempChart(transition) {
 	var data = d3.selectAll('g.temp').data();
 	// ...and horizontal grid lines
