@@ -91,37 +91,11 @@ function setup() {
         .style("opacity", 0);
 };
 
-function updateTempChart(transition) {
-	var data = d3.selectAll('g.temp').data();
-	// ...and horizontal grid lines
-	// note that these are drawn relative to the axes
-	// so negative sizes extend rightwards and upwards
-	svg.append("g")
-		.attr("class", "grid")
-		.call(function() {
-			return yAxis
-				.tickSize(-width, 0, 0)
-		});
-		
-	svg.append("g")
-		.attr("class", "x axis")
-		.attr("transform", "translate(0," + height + ")")
-		
-
-	svg.append("g")
-		.attr("class", "y axis")
-		.append("text")
-		.attr("transform", "rotate(-90)")
-		.attr("y", 6)
-		.attr("dy", "-3em")
-		.style("text-anchor", "end");
-		
-
-var div = d3.select("body").append("div")   
-    .attr("class", "tooltip")               
-    .style("opacity", 0);
-};
-	
+function updateTempChart(transition, selection) {
+    if (!selection) {
+        var selection = d3.select('.temp');
+    }
+	var data = selection.select('g.temp').data();
 	
 	x.domain(d3.extent(data[0].values, function(d) {
 		return d.date;
@@ -143,7 +117,7 @@ var div = d3.select("body").append("div")
 		if (transition) {
 			var t1 = transition;
 		} else {
-			var t1 = d3.transition().select('.temp');
+			var t1 = selection.transition();
 		}
 
 	t1.selectAll('.x.axis')
@@ -155,7 +129,7 @@ var div = d3.select("body").append("div")
 		.call(yAxis);
 		
 
-	var point = d3.selectAll("g.temp").selectAll(".point")
+	var point = selection.select('g.temp').selectAll(".point")
 		.data(function(d, i) {
 			return d.values;
 		});
@@ -212,12 +186,12 @@ var div = d3.select("body").append("div")
 			return y(d.power)
 		});
 
-    var pathSelection = d3.select('g.temp');
+    var pathSelection = selection.select('g.temp')
     var firstRun = (pathSelection.select('path').size() == 0);
     
     if (firstRun) {
       	// draw the line itself	
-	    d3.select('g.temp').append("path")
+	    selection.select('g.temp').append("path")
 		    .attr("class", "line")
     		.attr("d", function(d) { return line(d.values); })
 	    	.style("stroke", function(d) { return color(d.name); });	
