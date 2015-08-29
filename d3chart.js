@@ -152,6 +152,7 @@ function updateTempChart(transition, selection) {
 		.attr("r", function(d, i) {
 			return 3
 		})
+		.style("pointer-events", "all")
 		.on("mouseover", function(d) {
 			var div = d3.selectAll('.tooltip')
 			var parent = d3.select(this.parentElement).selectAll('.line');
@@ -192,6 +193,7 @@ function updateTempChart(transition, selection) {
     if (firstRun) {
       	// draw the line itself	
 	    selection.select('g.temp').append("path")
+    		.style("pointer-events", "none")
 		    .attr("class", "line")
     		.attr("d", function(d) { return line(d.values); })
 	    	.style("stroke", function(d) { return color(d.name); });	
