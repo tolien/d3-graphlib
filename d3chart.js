@@ -90,6 +90,11 @@ function setup() {
         .attr("class", "tooltip")               
         .style("opacity", 0);
 };
+	
+window.addEventListener("focus", function() {
+    //console.log("Window focussed, calling updateTempChart...");
+    //updateTempChart();
+});
 
 function updateTempChart(transition, selection) {
     if (!selection) {
