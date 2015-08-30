@@ -311,7 +311,7 @@ point.exit()
 
 function updatePowerChart(transition, selection) {
     if (!selection) {
-        var selection = d3.select('.city');
+        var selection = d3.select('.power');
     }
 	var grapharea = selection.select('g.grapharea');
 	var data = grapharea.data();
