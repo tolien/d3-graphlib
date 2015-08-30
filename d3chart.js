@@ -14,7 +14,6 @@ function chart(selection) {
 
 
 
-	var x, y, color, xAxis, yAxis, svg;
 var formatTime = d3.time.format("%e %B %H:%M");
 
 var margin = {
@@ -26,6 +25,7 @@ var margin = {
 	width = 600 - margin.left - margin.right,
 	height = 300 - margin.top - margin.bottom;
 
+	var x, y, color, xAxis, yAxis, svg, div;
 	
 function setup() {
 	// a time scale object for the x axis?
