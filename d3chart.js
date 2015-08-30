@@ -313,7 +313,8 @@ function updatePowerChart(transition, selection) {
     if (!selection) {
         var selection = d3.select('.city');
     }
-	var data = selection.select('g.city').data();
+	var grapharea = selection.select('g.grapharea');
+	var data = grapharea.data();
 	
 	x.domain(d3.extent(data[0].values, function(d) {
 		return d.date;
@@ -351,7 +352,7 @@ function updatePowerChart(transition, selection) {
 		.call(yAxis);
 		
 
-	var point = selection.select('g.city').selectAll(".point")
+	var point = grapharea.selectAll(".point")
 		.data(function(d, i) {
 			return d.values;
 		});
@@ -410,18 +411,17 @@ function updatePowerChart(transition, selection) {
 			return y(d.power)
 		});
 
-    var pathSelection = selection.select('g.city')
-    var firstRun = (pathSelection.select('path').size() == 0);
+    var firstRun = (grapharea.select('path').size() == 0);
     
     if (firstRun) {
       	// draw the line itself	
-	    selection.select('g.city').append("path")
+	    grapharea.append("path")
     		.style("pointer-events", "none")
 		    .attr("class", "line")
     		.attr("d", function(d) { return line(d.values); })
 	    	.style("stroke", function(d) { return color(d.name); });
 	    
-	    selection.select('g.city').append("text")
+	    grapharea.append("text")
 	      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
 	      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.power) + ")"; })
 	      .attr("x", 3)
