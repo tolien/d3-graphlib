@@ -12,13 +12,20 @@ function chart(selection) {
   });
 }
 
-	var formatTime = d3.time.format("%e %B %H:%M");
 
-	var margin = {top: 20, right: 80, bottom: 30, left: 50},
-	    width = 600 - margin.left - margin.right,
-	    height = 300 - margin.top - margin.bottom;
 
 	var x, y, color, xAxis, yAxis, svg;
+var formatTime = d3.time.format("%e %B %H:%M");
+
+var margin = {
+	top: 20,
+	right: 80,
+	bottom: 30,
+	left: 50
+},
+	width = 600 - margin.left - margin.right,
+	height = 300 - margin.top - margin.bottom;
+
 	
 function setup() {
 	// a time scale object for the x axis?
