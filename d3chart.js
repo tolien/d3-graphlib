@@ -150,7 +150,7 @@ function updateTempChart(transition, selection) {
 			return y(d.power)
 		})
 		.attr("r", function(d, i) {
-			return 3
+			return 3;
 		})
 		.style("pointer-events", "all")
 		.on("mouseover", function(d) {
