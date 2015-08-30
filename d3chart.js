@@ -114,16 +114,19 @@ function updateTempChart(transition, selection) {
 	}));
 
 	var min = d3.min(data, function(c) {
-		return Math.floor(0.9 * d3.min(c.values, function(v) {
+		return Math.floor(d3.min(c.values, function(v) {
 			return v.power;
 		}))
 	});
 	var max = d3.max(data, function(c) {
-		return Math.ceil(1.1 * d3.max(c.values, function(v) {
+		return Math.ceil(d3.max(c.values, function(v) {
 			return v.power;
 		}))
 	});
 
+	min = Math.floor(min * (1 - Math.sign(min) * 0.025));
+	max = Math.ceil(max * (1 + Math.sign(max) * 0.025));
+	console.log("min " + min + ", max " + max);
 	y.domain([min, max]);
 
 		if (transition) {
