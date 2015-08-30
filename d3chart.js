@@ -167,8 +167,9 @@ function updateTempChart(transition, selection) {
 
 		})
 		.on("mouseout", function(d) {
+			var div = d3.selectAll('.tooltip');
 			this.style.opacity = "";
-			div.style.opacity = 0;
+			div.transition(200).style("opacity", 0);
 		})
 		
 	point.exit()
