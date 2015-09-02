@@ -326,57 +326,11 @@ point.exit()
 }
 
 function updatePowerChart(transition, selection) {
-    if (!selection) {
-        var selection = d3.select('.power');
-    }
+	updateLineChart(transition, selection);
+	
 	var grapharea = selection.select('g.grapharea');
 	var data = grapharea.data();
-	
-	x.domain(d3.extent(data[0].values, function(d) {
-		return d.date;
-	}));
-
-	var min = d3.min(data, function(c) {
-		return Math.floor(d3.min(c.values, function(v) {
-			return v.power;
-		}))
-	});
-	var max = d3.max(data, function(c) {
-		return Math.ceil(d3.max(c.values, function(v) {
-			return v.power;
-		}))
-	});
-
-	min = Math.floor(min * (1 - Math.sign(min) * 0.025));
-	max = Math.ceil(max * (1 + Math.sign(max) * 0.025));
-	min = 0;
-	console.log("min " + min + ", max " + max);
-	y.domain([min, max]);
-
-		if (transition) {
-			var t1 = transition;
-		} else {
-			var t1 = selection.transition();
-		}
-
-	t1.selectAll('.x.axis')
-		.transition(0)
-		.call(xAxis);
-
-	t1.selectAll('.y.axis')
-		.transition(0)
-		.call(yAxis);
-		
-
-	var point = grapharea.selectAll(".point")
-		.data(function(d, i) {
-			return d.values;
-		});
-	point.enter().append("svg:circle")
-		.attr("class", "point")
-		.attr("stroke", function(d) {
-			return color(d.name)
-		});
+	var point = grapharea.selectAll('.point');
 		
 	point
 		.attr("fill", function(d, i) {
@@ -410,52 +364,6 @@ function updatePowerChart(transition, selection) {
 			this.style.opacity = "";
 			div.transition(200).style("opacity", 0);
 		})
-		
-	point.exit()
-		.transition(0)
-		.remove();
-		
-	t1.selectAll('.point').transition(0)
-		.ease("elastic")
-		.attr("cx", function(d, i) {
-			if (x(d.date) < 0) {
-				this.remove();
-			}
-			return x(d.date)
-		})
-		.attr("cy", function(d, i) {
-			return y(d.power)
-		});
-
-    var firstRun = (grapharea.select('path').size() == 0);
-    
-    if (firstRun) {
-      	// draw the line itself	
-	    grapharea.append("path")
-    		.style("pointer-events", "none")
-		    .attr("class", "line")
-    		.attr("d", function(d) { return line(d.values); })
-	    	.style("stroke", function(d) { return color(d.name); });
-	    
-	    grapharea.append("text")
-	      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
-	      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.power) + ")"; })
-	      .attr("x", 3)
-	      .attr("dy", ".35em")
-	      .text(function(d) { return d.name; });
-
-	}
-	else {
-		var move = x(data[0].values[0].date);
-		
-    	t1.select('.line')
-	    	.attr("d", function(d) {
-		    	return line(d.values);
-    		})
-	    	.attr("transform", null)
-		    .transition().duration(500).ease("linear")
-    		.attr("transform", "translate(-" + move + ",0)");
-    }		
 }
 	
 function log_coords(data) {
