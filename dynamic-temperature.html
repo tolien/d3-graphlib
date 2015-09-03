@@ -77,16 +77,16 @@ var doStuff = function(error, allData) {
 
 	
 	var t0 = d3.select('.temp');
-	if (!t0.select('g.temp').empty()) {
-    	t0.select('g.temp').data(tempData);
+	if (!t0.select('g.grapharea').empty()) {
+    	t0.select('g.grapharea').data(tempData);
     }
     else {
         svg.append("g")
 		    .data(tempData)
-    		.attr("class", "temp")
+    		.attr("class", "grapharea")
 	    	.attr("clip-path", "url(#clip)");
 	}
-		updateTempChart(t0);
+		updateTempChart(t0, d3.select('.temp'));
 		
 };
 
