@@ -156,6 +156,32 @@ function updateLineChart(transition, selection) {
 		.attr("stroke", function(d) {
 			return color(d.series)
 		});
+	point
+		.attr("fill", function(d, i) {
+			return "none";
+		})
+		.attr("r", function(d, i) {
+			return 3;
+		})
+		.style("pointer-events", "all")
+		.on("mouseover", function(d) {
+			var div = d3.selectAll('.tooltip')
+			var parent = d3.select(this.parentElement).selectAll('.line');
+			this.style.opacity = 1;
+			div.transition()
+				.duration(200)
+				.style("opacity", null)
+				.style("border-color", color(d.series));
+			div.html(formatTime(d.date) + "<br />" + formatValue(d.power) + " &deg;C")
+				.style("left", 5 + d3.event.pageX + "px")
+				.style("top", (d3.event.pageY - 28) + "px");
+
+		})
+		.on("mouseout", function(d) {
+			var div = d3.selectAll('.tooltip');
+			this.style.opacity = "";
+			div.transition(200).style("opacity", 0);
+		})
 
 	point.exit()
 		.transition(0)
@@ -201,38 +227,7 @@ function updateLineChart(transition, selection) {
 	}
 
 function updateTempChart(transition, selection) {
-	updateLineChart(transition, selection);
-	
-	var grapharea = selection.select('g.grapharea');	
-	var data = grapharea.data();
-	var point = grapharea.selectAll(".point");
-	
-	point
-		.attr("fill", function(d, i) {
-			return "none";
-		})
-		.attr("r", function(d, i) {
-			return 3;
-		})
-		.style("pointer-events", "all")
-		.on("mouseover", function(d) {
-			var div = d3.selectAll('.tooltip')
-			var parent = d3.select(this.parentElement).selectAll('.line');
-			this.style.opacity = 1;
-			div.transition()
-				.duration(200)
-				.style("opacity", null)
-				.style("border-color", color(d.series));
-			div.html(formatTime(d.date) + "<br />" + formatValue(d.power) + " &deg;C")
-				.style("left", 5 + d3.event.pageX + "px")
-				.style("top", (d3.event.pageY - 28) + "px");
-
-		})
-		.on("mouseout", function(d) {
-			var div = d3.selectAll('.tooltip');
-			this.style.opacity = "";
-			div.transition(200).style("opacity", 0);
-		})
+	updateLineChart(transition, selection);	
 }
 
 function updateRainChart(transition) {
@@ -344,16 +339,9 @@ function updatePowerChart(transition, selection) {
 		.attr("fill", function(d, i) {
 			return color(d.series);
 		})
-		.attr("cx", function(d, i) {
-			return x(d.date)
-		})
-		.attr("cy", function(d, i) {
-			return y(d.power)
-		})
 		.attr("r", function(d, i) {
 			return 2;
 		})
-		.style("pointer-events", "all")
 		.on("mouseover", function(d) {
 			var div = d3.selectAll('.tooltip')
 			var parent = d3.select(this.parentElement).selectAll('.line');
@@ -366,11 +354,6 @@ function updatePowerChart(transition, selection) {
 				.style("left", 5 + d3.event.pageX + "px")
 				.style("top", (d3.event.pageY - 28) + "px");
 
-		})
-		.on("mouseout", function(d) {
-			var div = d3.selectAll('.tooltip');
-			this.style.opacity = "";
-			div.transition(200).style("opacity", 0);
 		})
 }
 	
