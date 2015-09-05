@@ -21,7 +21,7 @@ var line = d3.svg.line()
 		return x(d.date);
 	})
 	.y(function(d) {
-		return y(d.power);
+		return y(d.value);
 	});
 	
 var formatValue = function(s) {
@@ -68,7 +68,7 @@ var doStuff = function(error, allData) {
 			values: data.map(function(d) {
 				return {
 					date: d[0],
-					power: +d[1].toFixed(1),
+					value: +d[1].toFixed(1),
 					series: name
 				};
 			})
@@ -118,7 +118,7 @@ function old_force_update() {
 
 	data[0].values.push({
 		date: cloneDate,
-		power: removed.power,
+		value: removed.value,
 		series: removed.series
 	});
 	
