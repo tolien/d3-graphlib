@@ -103,12 +103,12 @@ window.addEventListener("focus", function() {
     //updateTempChart();
 });
 
-function updateLineChart(transition, selection) { 
-  if (!selection) {
-		return;
-  }
-	var grapharea = selection.select('g.grapharea');
-	data = grapharea.data();
+function updateChart(transition, selection) {
+	if (!transition) {
+		transition = selection.transition();
+	}
+	
+	var data = selection.select('g.grapharea').data();
 	
 	x.domain(d3.extent(data[0].values, function(d) {
 		return d.date;
@@ -130,20 +130,22 @@ function updateLineChart(transition, selection) {
 	console.log("min " + min + ", max " + max);
 	y.domain([min, max]);
 	
-	if (transition) {
-		var t1 = transition;
-	} else {
-		var t1 = selection.transition();
-	}
-
-	t1.selectAll('.x.axis')
+	transition.selectAll('.x.axis')
 		.transition(0)
 		.call(xAxis);
 
-	t1.selectAll('.y.axis')
+	transition.selectAll('.y.axis')
 		.transition(0)
 		.call(yAxis);
-		
+}
+function updateLineChart(transition, selection) { 
+  if (!selection) {
+		return;
+  }
+	var grapharea = selection.select('g.grapharea');
+	var data = grapharea.data();
+
+	updateChart(transition, selection);	
 
 	var point = grapharea.selectAll(".point")
 		.data(function(d, i) {
@@ -188,7 +190,7 @@ function updateLineChart(transition, selection) {
 		.remove();
 		
 		
-	t1.selectAll('.point').transition(0)
+	transition.selectAll('.point').transition(0)
 		.ease("elastic")
 		.attr("cx", function(d, i) {
 			if (x(d.date) < 0) {
@@ -216,71 +218,37 @@ function updateLineChart(transition, selection) {
 		} else {
 			var move = x(data[0].values[0].date);
 
-			t1.select('.line')
+			transition.select('.line')
 				.attr("d", function(d) {
 					return line(d.values);
 				})
 				.attr("transform", null)
 				.transition().duration(500).ease("linear")
 				.attr("transform", "translate(-" + move + ",0)");
-		}
 	}
+}
 
 function updateTempChart(transition, selection) {
 	updateLineChart(transition, selection);	
 }
 
-function updateRainChart(transition) {
-	var data = d3.select('g.rain').data();
-	var city = d3.select('g.rain').selectAll('.bar')
+function updateRainChart(transition, selection) {
+	var data = selection.data();
+	var grapharea = selection.select('g.grapharea');
+	var city = grapharea.selectAll('.bar');
 	
-	var extent = d3.extent(data[0], function(d) {
-		return d.date;
-	});
-	var endDate = new Date(extent[1]);
-	endDate.setHours(endDate.getHours() + 1);
-	extent[1] = endDate;
-	x.domain(extent);
-	
-	console.log(extent[0], extent[1]);
-	// if min goes < 0 we want to multiply by 1.1 so that the magnitude gets *bigger*
-	var min = d3.min(data, function(c) {
-		return d3.min(c, function(v) {
-			return v.power;
-		});
-	});
-	var max = d3.max(data, function(c) {
-			return d3.max(c, function(v) {
-				return v.power;
-			});
-	});
-	
-	y.domain([
-		min < 0 ? min * 1.1 : min * 0.9,
-		1.1 * max
-	]);
+	updateChart(transition, selection);	
 
-d3.selectAll('.x.axis')
-	.transition()
-	.duration(0)
-	.call(xAxis);
-
-d3.selectAll('.y.axis')
-	.transition()
-	.duration(0)
-	.call(yAxis);
-
-var point = city
-	.data(function(d) {
-		return d;
-	}, function(d) { return d.date} );
+   var point = city
+	.data(function(d, i) {
+		return d.values;
+	});
 
 
 	point
 	.transition()
 	.duration(0)
 	.attr("x", function(d, i) {
-		//console.log(d.date + ", " + x(d.date));
 		return x(d.date)
 	})
 	.attr("y", function(d, i) {
@@ -296,7 +264,6 @@ var point = city
 		return color("rain")
 	})
 	.attr("x", function(d, i) {
-		//console.log(d.date + ", " + x(d.date));
 		return x(d.date)
 	})
 	.attr("y", function(d, i) {
