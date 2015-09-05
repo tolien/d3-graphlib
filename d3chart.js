@@ -1,15 +1,15 @@
 Math.sign = Math.sign || function(x) {
-    x = +x; // convert to a number
-    if (x === 0 || isNaN(x)) {
-        return x;
-    }
-    return x > 0 ? 1 : -1;
+	x = +x; // convert to a number
+	if (x === 0 || isNaN(x)) {
+		return x;
+	}
+	return x > 0 ? 1 : -1;
 }
 
 function chart(selection) {
-  selection.each(function(data) {
-  
-  });
+	selection.each(function(data) {
+
+	});
 }
 
 
@@ -25,22 +25,22 @@ var margin = {
 	width = 600 - margin.left - margin.right,
 	height = 300 - margin.top - margin.bottom;
 
-	var x, y, color, xAxis, yAxis, svg, div;
-	
+var x, y, color, xAxis, yAxis, svg, div;
+
 function setup() {
 	// a time scale object for the x axis?
-	 x = d3.time.scale()
+	x = d3.time.scale()
 		.range([0, width]);
 
 	// a linear scale object for the y axis?
-	 y = d3.scale.linear()
+	y = d3.scale.linear()
 		.range([height, 0]);
 
 	// "an ordinal scale with a range of ten categorical colours"
-	 color = d3.scale.category10();
+	color = d3.scale.category10();
 
 	// a bottom-aligned X axis
-	 xAxis = d3.svg.axis()
+	xAxis = d3.svg.axis()
 		.scale(x)
 		.orient("bottom");
 
@@ -48,13 +48,13 @@ function setup() {
 	xAxis.outerTickSize(0);
 
 	// a left-aligned Y axis 
-	 yAxis = d3.svg.axis()
+	yAxis = d3.svg.axis()
 		.scale(y)
 		.orient("left");
 
 	// append an SVG element to body
 	// giving it the width and height configured above
-	 svg = d3.select("body").append("svg")
+	svg = d3.select("body").append("svg")
 		.attr("width", width + margin.left + margin.right)
 		.attr("height", height + margin.top + margin.bottom)
 		.append("g")
@@ -78,11 +78,11 @@ function setup() {
 			return yAxis
 				.tickSize(-width, 0, 0)
 		});
-	
+
 	svg.append("g")
 		.attr("class", "x axis")
 		.attr("transform", "translate(0," + height + ")")
-	
+
 
 	svg.append("g")
 		.attr("class", "y axis")
@@ -91,29 +91,29 @@ function setup() {
 		.attr("y", 6)
 		.attr("dy", "-3em")
 		.style("text-anchor", "end");
-	
 
-    div = d3.select("body").append("div")   
-        .attr("class", "tooltip")               
-        .style("opacity", 0);
+
+	div = d3.select("body").append("div")
+		.attr("class", "tooltip")
+		.style("opacity", 0);
 };
-	
+
 window.addEventListener("focus", function() {
-    //console.log("Window focussed, calling updateTempChart...");
-    //updateTempChart();
+	//console.log("Window focussed, calling updateTempChart...");
+	//updateTempChart();
 });
 
 function updateChart(transition, selection) {
 	if (!transition) {
 		transition = selection.transition();
 	}
-	
+
 	var data = selection.select('g.grapharea').data();
-	
+
 	x.domain(d3.extent(data[0].values, function(d) {
 		return d.date;
 	}));
-	
+
 	var min = d3.min(data, function(c) {
 		return Math.floor(d3.min(c.values, function(v) {
 			return v.value;
@@ -124,12 +124,12 @@ function updateChart(transition, selection) {
 			return v.value;
 		}))
 	});
-	
+
 	min = Math.floor(min * (1 - Math.sign(min) * 0.025));
 	max = Math.ceil(max * (1 + Math.sign(max) * 0.025));
 	console.log("min " + min + ", max " + max);
 	y.domain([min, max]);
-	
+
 	transition.selectAll('.x.axis')
 		.transition(0)
 		.call(xAxis);
@@ -138,20 +138,21 @@ function updateChart(transition, selection) {
 		.transition(0)
 		.call(yAxis);
 }
-function updateLineChart(transition, selection) { 
-  if (!selection) {
+
+function updateLineChart(transition, selection) {
+	if (!selection) {
 		return;
-  }
+	}
 	var grapharea = selection.select('g.grapharea');
 	var data = grapharea.data();
 
-	updateChart(transition, selection);	
+	updateChart(transition, selection);
 
 	var point = grapharea.selectAll(".point")
 		.data(function(d, i) {
 			return d.values;
 		});
-		
+
 
 	point.enter().append("svg:circle")
 		.attr("class", "point")
@@ -188,8 +189,8 @@ function updateLineChart(transition, selection) {
 	point.exit()
 		.transition(0)
 		.remove();
-		
-		
+
+
 	transition.selectAll('.point').transition(0)
 		.ease("elastic")
 		.attr("cx", function(d, i) {
@@ -201,107 +202,107 @@ function updateLineChart(transition, selection) {
 		.attr("cy", function(d, i) {
 			return y(d.value)
 		});
-	
-		var firstRun = (grapharea.select('path').size() == 0);
 
-		if (firstRun) {
-			// draw the line itself	
-			grapharea.append("path")
-				.style("pointer-events", "none")
-				.attr("class", "line")
-				.attr("d", function(d) {
-					return line(d.values);
-				})
-				.style("stroke", function(d) {
-					return color(d.name);
-				});
-		} else {
-			var move = x(data[0].values[0].date);
+	var firstRun = (grapharea.select('path').size() == 0);
 
-			transition.select('.line')
-				.attr("d", function(d) {
-					return line(d.values);
-				})
-				.attr("transform", null)
-				.transition().duration(500).ease("linear")
-				.attr("transform", "translate(-" + move + ",0)");
+	if (firstRun) {
+		// draw the line itself	
+		grapharea.append("path")
+			.style("pointer-events", "none")
+			.attr("class", "line")
+			.attr("d", function(d) {
+				return line(d.values);
+			})
+			.style("stroke", function(d) {
+				return color(d.name);
+			});
+	} else {
+		var move = x(data[0].values[0].date);
+
+		transition.select('.line')
+			.attr("d", function(d) {
+				return line(d.values);
+			})
+			.attr("transform", null)
+			.transition().duration(500).ease("linear")
+			.attr("transform", "translate(-" + move + ",0)");
 	}
 }
 
 function updateTempChart(transition, selection) {
-	updateLineChart(transition, selection);	
+	updateLineChart(transition, selection);
 }
 
 function updateRainChart(transition, selection) {
 	var data = selection.data();
 	var grapharea = selection.select('g.grapharea');
 	var city = grapharea.selectAll('.bar');
-	
-	updateChart(transition, selection);	
 
-   var point = city
-	.data(function(d, i) {
-		return d.values;
-	});
+	updateChart(transition, selection);
+
+	var point = city
+		.data(function(d, i) {
+			return d.values;
+		});
 
 
 	point
-	.transition()
-	.duration(0)
-	.attr("x", function(d, i) {
-		return x(d.date)
-	})
-	.attr("y", function(d, i) {
-		return y(d.value)
-	})
-	.attr("height", function(d) {
-		return height - y(d.value);
-	});
-	
+		.transition()
+		.duration(0)
+		.attr("x", function(d, i) {
+			return x(d.date)
+		})
+		.attr("y", function(d, i) {
+			return y(d.value)
+		})
+		.attr("height", function(d) {
+			return height - y(d.value);
+		});
+
 	point.enter().append("rect")
-	.attr("class", "bar")
-	.attr("fill", function(d, i) {
-		return color("rain")
-	})
-	.attr("x", function(d, i) {
-		return x(d.date)
-	})
-	.attr("y", function(d, i) {
-		return y(d.value)
-	})
-	.attr("width", barWidth)
-	.attr("height", function(d) {
-		return height - y(d.value);
-	})
-	.on("mouseenter", function(d) {
-		var parent = d3.select(this.parentElement).selectAll('.line');
-		this.style.opacity = 1;
-		div.transition()
-			.duration(200)
-			.style("opacity", .9)
-			.style("border-color", color(d.name));
-		div.html(formatTime(d.date) + "<br />" + d.value + " mm")
-			.style("left", 5 + d3.event.pageX + "px")
-			.style("top", (d3.event.pageY - 28) + "px");
+		.attr("class", "bar")
+		.attr("fill", function(d, i) {
+			return color("rain")
+		})
+		.attr("x", function(d, i) {
+			return x(d.date)
+		})
+		.attr("y", function(d, i) {
+			return y(d.value)
+		})
+		.attr("width", barWidth)
+		.attr("height", function(d) {
+			return height - y(d.value);
+		})
+		.on("mouseenter", function(d) {
+			var parent = d3.select(this.parentElement).selectAll('.line');
+			this.style.opacity = 1;
+			div.transition()
+				.duration(200)
+				.style("opacity", .9)
+				.style("border-color", color(d.name));
+			div.html(formatTime(d.date) + "<br />" + d.value + " mm")
+				.style("left", 5 + d3.event.pageX + "px")
+				.style("top", (d3.event.pageY - 28) + "px");
 
-	})
-	.on("mouseleave", function(d) {
-		console.log("mouseout");
-		this.style.opacity = 0.7;
-		div.style('opacity', 0);
-	})
+		})
+		.on("mouseleave", function(d) {
+			console.log("mouseout");
+			this.style.opacity = 0.7;
+			div.style('opacity', 0);
+		})
 
-point.exit()
-	.remove();
+	point.exit()
+		.remove();
 }
 
 function updatePowerChart(transition, selection) {
 	updateLineChart(transition, selection);
-	
+
 	var grapharea = selection.select('g.grapharea');
 	var data = grapharea.data();
 	var point = grapharea.selectAll('.point');
-		
+
 	point
 		.attr("fill", function(d, i) {
 			return color(d.series);
@@ -315,7 +316,7 @@ function updatePowerChart(transition, selection) {
 			this.style.opacity = 1;
 			div.transition()
 				.duration(200)
-			.style("opacity", null);
+				.style("opacity", null);
 			div.html(formatTime(d.date) + "<br />" + formatValue(d.value) + " W")
 				.style("left", 5 + d3.event.pageX + "px")
 				.style("top", (d3.event.pageY - 28) + "px").style("border-color", color(d.series));
@@ -323,7 +324,7 @@ function updatePowerChart(transition, selection) {
 
 		})
 }
-	
+
 function log_coords(data) {
 	var list = "";
 	data[0].values.forEach(function(d) {
@@ -331,9 +332,9 @@ function log_coords(data) {
 		coords = coords + x(d.date).toFixed(2);
 		coords = coords + ", " + y(d.value).toFixed(2);
 		coords = coords + ")";
-		
+
 		list = list + " " + coords;
 	});
-	
+
 	console.log(list);
 }
