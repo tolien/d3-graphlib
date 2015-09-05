@@ -113,15 +113,15 @@ function updateLineChart(transition, selection) {
 	x.domain(d3.extent(data[0].values, function(d) {
 		return d.date;
 	}));
-
+	
 	var min = d3.min(data, function(c) {
 		return Math.floor(d3.min(c.values, function(v) {
-			return v.power;
+			return v.value;
 		}))
 	});
 	var max = d3.max(data, function(c) {
 		return Math.ceil(d3.max(c.values, function(v) {
-			return v.power;
+			return v.value;
 		}))
 	});
 	
@@ -172,7 +172,7 @@ function updateLineChart(transition, selection) {
 				.duration(200)
 				.style("opacity", null)
 				.style("border-color", color(d.series));
-			div.html(formatTime(d.date) + "<br />" + formatValue(d.power) + " &deg;C")
+			div.html(formatTime(d.date) + "<br />" + formatValue(d.value) + " &deg;C")
 				.style("left", 5 + d3.event.pageX + "px")
 				.style("top", (d3.event.pageY - 28) + "px");
 
@@ -197,9 +197,9 @@ function updateLineChart(transition, selection) {
 			return x(d.date)
 		})
 		.attr("cy", function(d, i) {
-			return y(d.power)
+			return y(d.value)
 		});
-		
+	
 		var firstRun = (grapharea.select('path').size() == 0);
 
 		if (firstRun) {
@@ -284,10 +284,10 @@ var point = city
 		return x(d.date)
 	})
 	.attr("y", function(d, i) {
-		return y(d.power)
+		return y(d.value)
 	})
 	.attr("height", function(d) {
-		return height - y(d.power);
+		return height - y(d.value);
 	});
 	
 	point.enter().append("rect")
@@ -300,11 +300,11 @@ var point = city
 		return x(d.date)
 	})
 	.attr("y", function(d, i) {
-		return y(d.power)
+		return y(d.value)
 	})
 	.attr("width", barWidth)
 	.attr("height", function(d) {
-		return height - y(d.power);
+		return height - y(d.value);
 	})
 	.on("mouseenter", function(d) {
 		var parent = d3.select(this.parentElement).selectAll('.line');
@@ -312,8 +312,8 @@ var point = city
 		div.transition()
 			.duration(200)
 			.style("opacity", .9)
-			.style("border-color", color(d.series));
-		div.html(formatTime(d.date) + "<br />" + d.power + " mm")
+			.style("border-color", color(d.name));
+		div.html(formatTime(d.date) + "<br />" + d.value + " mm")
 			.style("left", 5 + d3.event.pageX + "px")
 			.style("top", (d3.event.pageY - 28) + "px");
 
@@ -348,11 +348,11 @@ function updatePowerChart(transition, selection) {
 			this.style.opacity = 1;
 			div.transition()
 				.duration(200)
-				.style("opacity", null)
-				.style("border-color", color(d.series));
-			div.html(formatTime(d.date) + "<br />" + formatValue(d.power) + " W")
+			.style("opacity", null);
+			div.html(formatTime(d.date) + "<br />" + formatValue(d.value) + " W")
 				.style("left", 5 + d3.event.pageX + "px")
-				.style("top", (d3.event.pageY - 28) + "px");
+				.style("top", (d3.event.pageY - 28) + "px").style("border-color", color(d.series));
+
 
 		})
 }
@@ -362,7 +362,7 @@ function log_coords(data) {
 	data[0].values.forEach(function(d) {
 		var coords = "(";
 		coords = coords + x(d.date).toFixed(2);
-		coords = coords + ", " + y(d.power).toFixed(2);
+		coords = coords + ", " + y(d.value).toFixed(2);
 		coords = coords + ")";
 		
 		list = list + " " + coords;
