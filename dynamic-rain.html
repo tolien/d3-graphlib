@@ -44,26 +44,25 @@ var doStuff = function(error, allData) {
 	console.log("Bar width " + barWidth);
 
 	var rainData = color.domain().map(function(name) {
-		return data.map(function(d) {
-		    return {
-				date: d[0],
-				power: +d[1].toFixed(1),
-				series: name
-			}
+		return {
+		        values: data.map(function(d) {
+		            return { date: d[0], value: +d[1].toFixed(1) }
+		        }),
+				name: name
+			};
 		});
-	});
 	
 	var rain = svg.selectAll(".rain")
 		.data(rainData, function (d) { return d.date; })
 		.enter().append("g")
-		.attr("class", "rain");
+		.attr("class", "grapharea");
 		
-	updateRainChart();
+	updateRainChart(null, d3.select('.rain'));
 };
 
 // load the JSON data
 // at this point, data looks like 
-// power: [ data: [ [ timestamp, power ]...[ timestamp, power] ], period: date range ]
+// value: [ data: [ [ timestamp, value ]...[ timestamp, value] ], period: date range ]
 var update_data = function() {
     d3.timer(update_data, 5 * 60 * 1000);
     console.log("update_data fired at " + new Date().toString());
@@ -88,7 +87,7 @@ function old_force_update() {
 	var cloneDate = new Date(removed.date.getTime() + deltaT);
 	data[0].push({
 		date: cloneDate,
-		power: removed.power,
+		value: removed.value,
 		series: removed.series
 	});
 
