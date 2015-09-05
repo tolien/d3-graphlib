@@ -27,7 +27,7 @@ body {
 	var line = d3.svg.line()
 	    .interpolate("monotone")
 	    .x(function(d) { return x(d.date); })
-	    .y(function(d) { return y(d.power); });
+	    .y(function(d) { return y(d.value); });
 
 var formatValue = function(s) {
     return s.toFixed(0);
@@ -58,7 +58,7 @@ var doStuff = function(error, data) {
 	    return {
 	      name: name,
 	      values: data.map(function(d) {
-	        return {date: d[0], power: +d[1], series: name};
+	        return {date: d[0], value: +d[1], series: name};
 	      })
 	    };
 	  });
