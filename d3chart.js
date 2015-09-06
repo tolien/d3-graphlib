@@ -124,7 +124,8 @@ function updateChart(transition, selection) {
 			return v.value;
 		}))
 	});
-
+	
+	min = min > 0 ? 0 : min;
 	min = Math.floor(min * (1 - Math.sign(min) * 0.025));
 	max = Math.ceil(max * (1 + Math.sign(max) * 0.025));
 	console.log("min " + min + ", max " + max);
