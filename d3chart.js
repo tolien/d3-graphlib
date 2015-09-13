@@ -108,7 +108,7 @@ function updateChart(transition, selection) {
 		transition = selection.transition();
 	}
 
-	var data = selection.select('g.grapharea').data();
+	var data = selection.selectAll('g.grapharea').data();
 
 	x.domain(d3.extent(data[0].values, function(d) {
 		return d.date;
@@ -144,90 +144,94 @@ function updateLineChart(transition, selection) {
 	if (!selection) {
 		return;
 	}
-	var grapharea = selection.select('g.grapharea');
-	var data = grapharea.data();
+	var series = selection.selectAll('g.grapharea');
+	
+	series.each(function() {
+		var grapharea = d3.select(this);
+		var data = grapharea.data();
 
-	updateChart(transition, selection);
+		updateChart(transition, selection);
 
-	var point = grapharea.selectAll(".point")
-		.data(function(d, i) {
-			return d.values;
-		});
-
-
-	point.enter().append("svg:circle")
-		.attr("class", "point")
-		.attr("stroke", function(d) {
-			return color(d.series)
-		});
-	point
-		.attr("fill", function(d, i) {
-			return "none";
-		})
-		.attr("r", function(d, i) {
-			return 3;
-		})
-		.style("pointer-events", "all")
-		.on("mouseover", function(d) {
-			var div = d3.selectAll('.tooltip')
-			var parent = d3.select(this.parentElement).selectAll('.line');
-			this.style.opacity = 1;
-			div.transition()
-				.duration(200)
-				.style("opacity", null)
-				.style("border-color", color(d.series));
-			div.html(formatTime(d.date) + "<br />" + formatValue(d.value) + " &deg;C")
-				.style("left", 5 + d3.event.pageX + "px")
-				.style("top", (d3.event.pageY - 28) + "px");
-
-		})
-		.on("mouseout", function(d) {
-			var div = d3.selectAll('.tooltip');
-			this.style.opacity = "";
-			div.transition(200).style("opacity", 0);
-		})
-
-	point.exit()
-		.transition(0)
-		.remove();
-
-
-	transition.selectAll('.point').transition(0)
-		.ease("elastic")
-		.attr("cx", function(d, i) {
-			if (x(d.date) < 0) {
-				this.remove();
-			}
-			return x(d.date)
-		})
-		.attr("cy", function(d, i) {
-			return y(d.value)
-		});
-
-	var firstRun = (grapharea.select('path').size() == 0);
-
-	if (firstRun) {
-		// draw the line itself	
-		grapharea.append("path")
-			.style("pointer-events", "none")
-			.attr("class", "line")
-			.attr("d", function(d) {
-				return line(d.values);
-			})
-			.style("stroke", function(d) {
-				return color(d.name);
+		var point = grapharea.selectAll(".point")
+			.data(function(d, i) {
+				return d.values;
 			});
-	} else {
-		var move = x(data[0].values[0].date);
 
-		transition.select('.line')
-			.attr("d", function(d) {
-				return line(d.values);
+
+		point.enter().append("svg:circle")
+			.attr("class", "point")
+			.attr("stroke", function(d) {
+				return color(d.series)
+			});
+		point
+			.attr("fill", function(d, i) {
+				return "none";
 			})
-			.attr("transform", null)
-			.transition().duration(500).ease("linear")
-			.attr("transform", "translate(-" + move + ",0)");
-	}
+			.attr("r", function(d, i) {
+				return 3;
+			})
+			.style("pointer-events", "all")
+			.on("mouseover", function(d) {
+				var div = d3.selectAll('.tooltip')
+				var parent = d3.select(this.parentElement).selectAll('.line');
+				this.style.opacity = 1;
+				div.transition()
+					.duration(200)
+					.style("opacity", null)
+					.style("border-color", color(d.series));
+				div.html(formatTime(d.date) + "<br />" + formatValue(d.value) + " &deg;C")
+					.style("left", 5 + d3.event.pageX + "px")
+					.style("top", (d3.event.pageY - 28) + "px");
+
+			})
+			.on("mouseout", function(d) {
+				var div = d3.selectAll('.tooltip');
+				this.style.opacity = "";
+				div.transition(200).style("opacity", 0);
+			})
+
+		point.exit()
+			.transition(0)
+			.remove();
+
+
+		transition.selectAll('.point').transition(0)
+			.ease("elastic")
+			.attr("cx", function(d, i) {
+				if (x(d.date) < 0) {
+					this.remove();
+				}
+				return x(d.date)
+			})
+			.attr("cy", function(d, i) {
+				return y(d.value)
+			});
+
+		var firstRun = (grapharea.select('path').size() == 0);
+
+		if (firstRun) {
+			// draw the line itself	
+			grapharea.append("path")
+				.style("pointer-events", "none")
+				.attr("class", "line")
+				.attr("d", function(d) {
+					return line(d.values);
+				})
+				.style("stroke", function(d) {
+					return color(d.name);
+				});
+		} else {
+			var move = x(data[0].values[0].date);
+
+			transition.select('.line')
+				.attr("d", function(d) {
+					return line(d.values);
+				})
+				.attr("transform", null)
+				.transition().duration(500).ease("linear")
+				.attr("transform", "translate(-" + move + ",0)");
+		}
+	});
 }
 
 function updateTempChart(transition, selection) {
