@@ -1,0 +1,123 @@
+<html>
+<link rel="stylesheet" type="text/css" href="d3chart.css" />
+<style>
+
+body {
+  font-family: sans-serif;
+  font-size: 0.8em;
+}
+
+</style>
+<body>
+	<script src="d3.js" charset="utf-8"></script>
+	<script src="d3chart.js" charset="utf-8"></script>
+	
+
+	<script>
+// a line object
+var line = d3.svg.line()
+	.interpolate("cardinal")
+	.x(function(d) {
+		return x(d.date);
+	})
+	.y(function(d) {
+		return y(d.value);
+	});
+
+var formatValue = function(s) {
+	return s.toFixed(1);
+}
+
+setup();
+d3.selectAll('svg').attr('class', 'temp');
+
+// and set up a clipping path - anything outside this region will not be drawn
+// this is used as part of updating the chart
+svg.append("defs").append("clipPath")
+	.attr("id", "clip")
+	.append("rect")
+	.attr("width", width * 1.2)
+	.attr("height", height);
+
+d3.select('.y.axis text').text("Temperature (\u00B0C)");
+
+// set up an ordinal scale to colour the line
+color.domain(["Temperature", "Wind"]);
+
+var doStuff = function(error, allData) {
+	// when this is called we should have loaded the JSON from afar
+	// or an error's occurred - handle that first
+	if (error) {
+		console.log(error);
+		return;
+	}
+	
+	// at this point, allData looks like (with other keys for pressure, precipitation etc.)
+	// temp: {avg: [ [timestamp, data point], [timestamp, data point]] }
+	// so we extract the list of timestamp/value pairs
+	
+	var data = {};
+	data['Temperature'] = handle_data(allData, ['temp', 'avg', 'data'], 'Temperature');
+	data['Wind'] = handle_data(allData, ['wind', 'max', 'data'], 'Wind');
+	
+	
+	var tempData = color.domain().map(function(name) {
+		return data[name];
+	});
+
+	var t0 = d3.select('.temp');
+	t0.select('g').selectAll('g.grapharea').data(tempData).enter().append("g")
+			.attr("class", "grapharea")
+			.attr("clip-path", "url(#clip)");
+	updateTempChart(t0, d3.select('.temp'));
+
+};
+
+function handle_data(json, keys, name) {
+	var data = json;
+	for (var index = 0; index < keys.length; index++) {
+		var key = keys[index];
+		data = data[key];
+	}
+
+	// ... and convert the timestamp into a JS Date object
+	data.forEach(function(d) {
+		d[0] = new Date(d[0]);
+	});
+	
+	var tempData = {
+			name: name,
+			values: data.map(function(d) {
+				return {
+					date: d[0],
+					value: +d[1].toFixed(1),
+					series: name
+				};
+			})
+		};
+	
+	return tempData;
+}
+
+
+var update_data = function() {
+	d3.timer(update_data, 5 * 60 * 1000);
+	console.log("update_data fired at " + new Date().toString());
+	// load the JSON data
+	// and when that's finished, called the function defined in doStuff
+	d3.json("sampledata/weather.day.json", doStuff);
+
+	return true;
+}
+update_data();
+
+function force_update() {
+	update_data();
+}
+
+	</script>
+	
+<input type="button" onclick="force_update()" value="Update" />
+</body>
+
+</html>
