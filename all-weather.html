@@ -105,7 +105,7 @@ var update_data = function() {
 	console.log("update_data fired at " + new Date().toString());
 	// load the JSON data
 	// and when that's finished, called the function defined in doStuff
-	d3.json("sampledata/weather.day.json", doStuff);
+	d3.json("http://weather.tolien.co.uk/day-data.json", doStuff);
 
 	return true;
 }
