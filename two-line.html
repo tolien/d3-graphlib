@@ -58,7 +58,7 @@ var doStuff = function(error, allData) {
 	
 	var data = {};
 	data['Temperature'] = handle_data(allData, ['temp', 'avg', 'data'], 'Temperature');
-	data['Dewpoint'] = handle_data(allData, ['dewpoint', 'avg', 'data'], 'DewPoint');
+	data['Dewpoint'] = handle_data(allData, ['dewpoint', 'avg', 'data'], 'Dewpoint');
 	
 	
 	var tempData = color.domain().map(function(name) {
