@@ -221,7 +221,7 @@ function updateLineChart(transition, selection) {
 					return color(d.name);
 				});
 		} else {
-			selection.selectAll('.line')
+			grapharea.selectAll('.line')
 				.attr("d", function(d) {
 					return line(d.values);
 				})
