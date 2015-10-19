@@ -42,7 +42,7 @@ svg.append("defs").append("clipPath")
 d3.select('.y.axis text').text("Temperature (\u00B0C)");
 
 // set up an ordinal scale to colour the line
-color.domain(["Temperature", "Wind"]);
+color.domain(["Temperature", "Dewpoint"]);
 
 var doStuff = function(error, allData) {
 	// when this is called we should have loaded the JSON from afar
@@ -58,7 +58,7 @@ var doStuff = function(error, allData) {
 	
 	var data = {};
 	data['Temperature'] = handle_data(allData, ['temp', 'avg', 'data'], 'Temperature');
-	data['Wind'] = handle_data(allData, ['wind', 'max', 'data'], 'Wind');
+	data['Dewpoint'] = handle_data(allData, ['dewpoint', 'avg', 'data'], 'DewPoint');
 	
 	
 	var tempData = color.domain().map(function(name) {
