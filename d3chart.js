@@ -221,15 +221,10 @@ function updateLineChart(transition, selection) {
 					return color(d.name);
 				});
 		} else {
-			var move = x(data[0].values[0].date);
-
-			transition.select('.line')
+			selection.selectAll('.line')
 				.attr("d", function(d) {
 					return line(d.values);
 				})
-				.attr("transform", null)
-				.transition().duration(500).ease("linear")
-				.attr("transform", "translate(-" + move + ",0)");
 		}
 	});
 }
