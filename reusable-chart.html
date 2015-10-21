@@ -1,0 +1,58 @@
+<html>
+<link rel="stylesheet" type="text/css" href="d3chart.css" />
+<style>
+
+body {
+  font-family: sans-serif;
+  font-size: 0.8em;
+}
+
+#example,#example2 {
+  margin-left: 20px;
+}
+
+.line {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+.area {
+  fill: #969696;
+}
+
+.attention {
+  background: yellow;
+  margin: -4px;
+  padding: 4px;
+}
+</style>
+<body>
+    <script src="d3.js" charset="utf-8"></script>
+    <script src="reusable-d3chart.js" charset="utf-8"></script>
+    <script>
+
+var chart = timeSeriesChart()
+    .x(function(d) { return new Date(d[0]); })
+    .y(function(d) { return +d[1]; });
+    
+d3.json("http://weather.tolien.co.uk/day-data.json", function(data) {
+  d3.select("#example2")
+      .datum(data['dewpoint']['avg']['data'])
+      .call(chart);
+});
+
+d3.json("http://weather.tolien.co.uk/day-data.json", function(data) {
+  d3.select("#example")
+      .datum(data['temp']['avg']['data'])
+      .call(chart);
+});
+
+
+    </script>
+
+<p id="example" />
+
+<p id="example2" />
+</body>
+</html>
