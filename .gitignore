@@ -1,2 +1,5 @@
 # TextMate tempfiles
 ._*
+
+# nano tempfiles
+.*.swp
