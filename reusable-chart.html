@@ -38,13 +38,17 @@ var chart = timeSeriesChart()
     
 d3.json("http://weather.tolien.co.uk/day-data.json", function(data) {
   d3.select("#example2")
-      .datum(data['dewpoint']['avg']['data'])
+      .datum([
+				data['temp']['avg']['data'], data['dewpoint']['avg']['data']
+			])
       .call(chart);
 });
 
 d3.json("http://weather.tolien.co.uk/day-data.json", function(data) {
   d3.select("#example")
-      .datum(data['temp']['avg']['data'])
+      .datum([
+      	data['wind']['max']['data']
+      ]])
       .call(chart);
 });
 
