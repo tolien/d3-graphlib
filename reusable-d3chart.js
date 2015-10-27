@@ -1,13 +1,13 @@
 function timeSeriesChart() {
   var margin = {top: 20, right: 80, bottom: 30, left: 50},
-      width = 600 - margin.left - margin.right,
-      height = 300 - margin.top - margin.bottom,
+      width = 600,
+      height = 300,
       xValue = function(d) { return d[0]; },
       yValue = function(d) { return d[1]; },
       xScale = d3.time.scale(),
       yScale = d3.scale.linear(),
-      xAxis = d3.svg.axis().scale(xScale).orient("bottom").tickSize(-height, 0),
-      yAxis = d3.svg.axis().scale(yScale).orient("left").tickSize(-width, 0),
+      xAxis = d3.svg.axis().scale(xScale).orient("bottom").tickSize(-(height - margin.bottom - margin.top), 0),
+      yAxis = d3.svg.axis().scale(yScale).orient("left").tickSize(-(width - margin.left - margin.right), 0),
       line = d3.svg.line().x(X).y(Y);
 
   function chart(selection) {
