@@ -8,7 +8,8 @@ function timeSeriesChart() {
       yScale = d3.scale.linear(),
       xAxis = d3.svg.axis().scale(xScale).orient("bottom").tickSize(-(height - margin.bottom - margin.top), 0),
       yAxis = d3.svg.axis().scale(yScale).orient("left").tickSize(-(width - margin.left - margin.right), 0),
-      line = d3.svg.line().x(X).y(Y);
+      line = d3.svg.line().x(X).y(Y)
+      color = d3.scale.category10();
 
   function chart(selection) {
     selection.each(function(data) {
@@ -16,17 +17,32 @@ function timeSeriesChart() {
       // Convert data to standard representation greedily;
       // this is needed for nondeterministic accessors.
       data = data.map(function(d, i) {
-        return [xValue.call(data, d, i), yValue.call(data, d, i)];
+        return d.map(function(d, i) {
+            return [xValue.call(data, d, i), yValue.call(data, d, i)];
+          })
       });
 
       // Update the x-scale.
+      var xmin = d3.min(data.map(function(d, i) {
+        return d3.min(d, function(d) { return d[0]; })
+      }));
+      var xmax = d3.max(data.map(function(d, i) {
+        return d3.max(d, function(d) { return d[0]; })
+      }));
       xScale
-          .domain(d3.extent(data, function(d) { return d[0]; }))
+          .domain([xmin, xmax])
           .range([0, width - margin.left - margin.right]);
 
       // Update the y-scale.
+      var ymin = d3.min(data.map(function(d, i) { 
+        return d3.min(d, function(d) { return d[1]; })
+      }));
+      var ymax = d3.max(data.map(function(d, i) { 
+        return d3.max(d, function(d) { return d[1]; })
+      }));
+      ymin = ymin > 0 ? 0 : ymin;
       yScale
-          .domain([0, d3.max(data, function(d) { return d[1]; })])
+          .domain([ymin, ymax])
           .range([height - margin.top - margin.bottom, 0]);
 
       // Select the svg element, if it exists.
@@ -34,7 +50,9 @@ function timeSeriesChart() {
 
       // Otherwise, create the skeletal chart.
       var gEnter = svg.enter().append("svg").append("g");
-      gEnter.append("path").attr("class", "line");
+      data.map(function(d, i) {
+        gEnter.append("path").attr("class", "line").style("stroke", function(d) { console.log(i); return color(i); });
+      });
       gEnter.append("g").attr("class", "x axis");
 	  gEnter.append("g").attr("class", "y axis");
 
@@ -47,8 +65,10 @@ function timeSeriesChart() {
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
       // Update the line path.
-      g.select(".line")
+      g.selectAll(".line")
+          .data(function(d) { return d;} )
           .attr("d", line);
+          
 
       // Update the x-axis.
       g.select(".x.axis")
