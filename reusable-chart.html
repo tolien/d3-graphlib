@@ -48,7 +48,7 @@ d3.json("http://weather.tolien.co.uk/day-data.json", function(data) {
   d3.select("#example")
       .datum([
       	data['wind']['max']['data']
-      ]])
+      ])
       .call(chart);
 });
 
