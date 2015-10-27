@@ -37,26 +37,29 @@ var chart = timeSeriesChart()
     .y(function(d) { return +d[1]; });
     
 d3.json("http://weather.tolien.co.uk/day-data.json", function(data) {
-  d3.select("#example2")
+  d3.select("#temp")
       .datum([
 				data['temp']['avg']['data'], data['dewpoint']['avg']['data']
 			])
       .call(chart);
-});
 
-d3.json("http://weather.tolien.co.uk/day-data.json", function(data) {
-  d3.select("#example")
+  d3.select("#wind")
       .datum([
       	data['wind']['max']['data']
       ])
       .call(chart);
-});
 
+  d3.select("#solar")
+      .datum([
+      	data['solar']['avg']['data']
+      ])
+      .call(chart);
+});
 
     </script>
 
-<p id="example" />
-
-<p id="example2" />
+<p id="temp" />
+<p id="wind" />
+<p id="solar"></p>
 </body>
 </html>
