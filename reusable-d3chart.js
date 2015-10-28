@@ -51,7 +51,7 @@ function timeSeriesChart() {
       // Otherwise, create the skeletal chart.
       var gEnter = svg.enter().append("svg").append("g");
       data.map(function(d, i) {
-        gEnter.append("path").attr("class", "line").style("stroke", function(d) { console.log(i); return color(i); });
+        gEnter.append("path").attr("class", "line").style("stroke", function(d) { return color(i); });
       });
       gEnter.append("g").attr("class", "x axis");
 	  gEnter.append("g").attr("class", "y axis");
