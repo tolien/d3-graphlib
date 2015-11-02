@@ -127,6 +127,12 @@ function timeSeriesChart() {
     yValue = _;
     return chart;
   };
+	
+	chart.line = function(_) {
+		if (!arguments.length) return line;
+		line = _;
+		return chart;
+	}
 
   return chart;
 }
