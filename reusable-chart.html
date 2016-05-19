@@ -30,36 +30,83 @@ body {
 <body>
     <script src="d3.js" charset="utf-8"></script>
     <script src="reusable-d3chart.js" charset="utf-8"></script>
+    <script src="reusable-bar-d3chart.js" charset="utf-8"></script>
     <script>
 
 var chart = timeSeriesChart()
     .x(function(d) { return new Date(d[0]); })
     .y(function(d) { return +d[1]; });
-    
-d3.json("http://weather.tolien.co.uk/day-data.json", function(data) {
-  d3.select("#temp")
+    chart.line().interpolate("monotone");
+
+var barChart = timeSeriesBarChart()
+		.x(function(d) { return new Date(d[0]); })
+		.y(function(d) { return +d[1]; });
+		
+var doStuff = function(data) {
+			
+		chart.legend(["Gust", "Average"])
+  chart.yAxisText('miles per hour');
+  d3.select("#wind")
+      .datum([
+      	data['wind']['max']['data'], data['wind']['average']['data']
+      ])
+      .call(chart);
+			
+
+			chart.legend([])
+  barChart.yAxisText('millimetres');
+		  d3.select("#rain")
+		      .datum([
+		      	data['rain']['total']['data']
+		      ])
+		      .call(barChart);
+
+  chart.yAxisText('Watts per metre squared');
+			chart.legend(['Average', 'Maximum'])
+  d3.select("#solar")
+      .datum([
+      	data['solar']['avg']['data'], data['solar']['max']['data']
+      ])
+      .call(chart);
+			
+			chart.legend([])
+  chart.yAxisText('barometric pressure (hPa)');		
+  d3.select("#pressure")
+      .datum([
+      	data['pressure']['avg']['data']
+      ])
+      .call(chart);
+
+			chart.legend(["Temperature", "Dewpoint"]);
+			chart.line().interpolate("cardinal");
+    chart.yAxisText("Temperature (\u00B0C)");
+    d3.select("#temp")
       .datum([
 				data['temp']['avg']['data'], data['dewpoint']['avg']['data']
 			])
       .call(chart);
+};
 
-  d3.select("#wind")
-      .datum([
-      	data['wind']['max']['data']
-      ])
-      .call(chart);
+update_data = function() {
+	d3.timer(update_data, 15 * 60 * 1000);
+    console.log("update_data fired at " + new Date().toString());
+    d3.json("http://weather.tolien.co.uk/day-data.json", doStuff);   
+	return true;
+}
 
-  d3.select("#solar")
-      .datum([
-      	data['solar']['avg']['data']
-      ])
-      .call(chart);
-});
+update_data();
+
+function force_update() {
+	update_data();
+}
 
     </script>
 
+<input type="button" onclick="force_update()" value="Update" />
 <p id="temp" />
+<p id="rain" />
 <p id="wind" />
+<p id="pressure" />
 <p id="solar"></p>
 </body>
 </html>
