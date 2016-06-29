@@ -1,7 +1,13 @@
+body {
+  font-size: 12px;
+  color: #333;
+  fill: #32313F;
+}
+
 .axis path,
 .axis line {
   fill: none;
-  stroke: #000;
+  stroke: #CCC;
   shape-rendering: crispEdges;
 }
 
@@ -25,7 +31,7 @@
       stroke-width: 2px;
 }
 
-.point {
+.grapharea .point {
     opacity: 0.5;
 }
 
@@ -40,4 +46,12 @@ div.tooltip {
   pointer-events: none; 
 	opacity: 0.9;     
 	background-color: white;   
+}
+
+.axis text {
+	font-family: "Helvetica Neue", sans-serif;
+}
+
+.y.axis text {
+<!--	text-transform: uppercase; -->
 }
