@@ -19,6 +19,7 @@ body {
 	d3.selectAll('svg').attr('class', 'rain');
 
 	d3.select('.y.axis text').text("Precipitation (mm)");
+	xAxis.ticks(d3.time.week, 1);
 
 var doStuff = function(error, allData) {
 	if (error) {
@@ -68,7 +69,7 @@ var update_data = function() {
     console.log("update_data fired at " + new Date().toString());
     // load the JSON data
     // and when that's finished, called the function defined in doStuff
-    d3.json("http://weather.tolien.co.uk/month-data.json", doStuff);
+    d3.json("http://weather.tolien.co.uk/data/month.json", doStuff);
 
     return true;
 }
