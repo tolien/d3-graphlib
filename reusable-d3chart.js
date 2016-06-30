@@ -83,6 +83,15 @@ function timeSeriesChart() {
 
 			// Otherwise, create the skeletal chart.
 			var gEnter = svg.enter().append("svg").append("g");
+			gEnter.append("g").attr("class", "x axis");
+			gEnter.append("g").attr("class", "y axis")
+				.append('text')
+				.attr('transform', 'rotate(-90)')
+				.attr('y', 6)
+				.attr('dy', '-4em')
+				.style('text-anchor', 'end')
+				.text(yAxisText);
+
 			var legend;
 			if (legendItems.length > 0) {
 				legend = gEnter.append('g').attr('class', 'legend');
@@ -125,14 +134,6 @@ function timeSeriesChart() {
 					.remove();
 
 			});
-			gEnter.append("g").attr("class", "x axis");
-			gEnter.append("g").attr("class", "y axis")
-				.append('text')
-				.attr('transform', 'rotate(-90)')
-				.attr('y', 6)
-				.attr('dy', '-4em')
-				.style('text-anchor', 'end')
-				.text(yAxisText);
 
 			// Update the outer dimensions.
 			svg.attr("width", width)
@@ -177,7 +178,7 @@ function timeSeriesChart() {
             series.data()[1].push(lastItem);
   */          
             components.forEach(function(component) {
-                series.call(component.update, X, Y, chart);
+//                series.call(component.update, X, Y, chart);
             });
 						
 
@@ -285,7 +286,7 @@ function lineComponent() {
 			
 			//console.log(this.data());
 			
-			//path.attr('d', line)
+			path.attr('d', line)
 			// console.log("plotLine.draw called on " + this);
 		},
 		update: function(selection, X, Y, chart){
