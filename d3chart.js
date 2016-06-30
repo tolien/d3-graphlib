@@ -6,13 +6,6 @@ Math.sign = Math.sign || function(x) {
 	return x > 0 ? 1 : -1;
 }
 
-function chart(selection) {
-	selection.each(function(data) {
-
-	});
-}
-
-
 
 var formatTime = d3.time.format("%e %B %H:%M");
 
@@ -125,7 +118,7 @@ function updateChart(transition, selection) {
 		}))
 	});
 	
-	min = min > 0 ? 0 : min;
+//	min = min > 0 ? 0 : min;
 	min = Math.floor(min * (1 - Math.sign(min) * 0.025));
 	max = Math.ceil(max * (1 + Math.sign(max) * 0.025));
 	console.log("min " + min + ", max " + max);
@@ -148,7 +141,7 @@ function updateLineChart(transition, selection) {
 	
 	series.each(function() {
 		var grapharea = d3.select(this);
-		var data = grapharea.data();
+		//var data = grapharea.data();
 
 		updateChart(transition, selection);
 
@@ -165,7 +158,7 @@ function updateLineChart(transition, selection) {
 			});
 		point
 			.attr("fill", function(d, i) {
-				return "none";
+				return color(d.series);
 			})
 			.attr("r", function(d, i) {
 				return 3;
