@@ -36,14 +36,13 @@ body {
 var chart = timeSeriesChart()
     .x(function(d) { return new Date(d[0]); })
     .y(function(d) { return +d[1]; });
-    chart.line().interpolate("monotone");
+    chart.components()[0].line.interpolate("monotone");
 
 var barChart = timeSeriesBarChart()
 		.x(function(d) { return new Date(d[0]); })
 		.y(function(d) { return +d[1]; });
-		
+				
 var doStuff = function(data) {
-			
 		chart.legend(["Gust", "Average"])
   chart.yAxisText('miles per hour');
   d3.select("#wind")
@@ -78,7 +77,7 @@ var doStuff = function(data) {
       .call(chart);
 
 			chart.legend(["Temperature", "Dewpoint"]);
-			chart.line().interpolate("cardinal");
+			chart.components()[0].line.interpolate("basis");
     chart.yAxisText("Temperature (\u00B0C)");
     d3.select("#temp")
       .datum([
@@ -88,9 +87,9 @@ var doStuff = function(data) {
 };
 
 update_data = function() {
-	d3.timer(update_data, 15 * 60 * 1000);
+//	d3.timer(update_data, 15 * 60 * 1000);
     console.log("update_data fired at " + new Date().toString());
-    d3.json("http://weather.tolien.co.uk/day-data.json", doStuff);   
+    d3.json("http://weather.tolien.co.uk/data/day.json", doStuff);   
 	return true;
 }
 
