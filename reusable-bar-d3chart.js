@@ -30,7 +30,7 @@ var bar = {
             }
 
                         var point = this.selectAll('.bar').data(function(d, i) { return d; });
-						point.append("rect")
+						point.enter().append("rect")
 							.attr("class", "bar")
 							.attr("fill", function(d, i) {
 								return seriesColor;
