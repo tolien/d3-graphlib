@@ -80,7 +80,7 @@ function timeSeriesChart() {
 				
 			// Select the svg element, if it exists.
 			var svg = d3.select(this).selectAll("svg").data([data]);
-
+			
 			// Otherwise, create the skeletal chart.
 			var gEnter = svg.enter().append("svg").append("g");
 			gEnter.append("g").attr("class", "x axis");
@@ -178,7 +178,7 @@ function timeSeriesChart() {
             series.data()[1].push(lastItem);
   */          
             components.forEach(function(component) {
-//                series.call(component.update, X, Y, chart);
+                series.call(component.update, X, Y, chart);
             });
 						
 
@@ -267,8 +267,8 @@ function timeSeriesChart() {
 		 if (!arguments.length) return yAxis;
 		 yAxis = _;
 		 return chart;
-	 }
-
+	 };
+	 
 	return chart;
 }
 
@@ -340,7 +340,7 @@ function pointsComponent() {
 				})
 				.style("pointer-events", "all")
 				.on("mouseover", function(d) {
-					var div = d3.selectAll('.tooltip');
+					/*var div = d3.selectAll('.tooltip');
 					var parent = d3.select(this.parentElement).selectAll('.line');
 					this.style.opacity = 1;
 					div.transition()
@@ -350,12 +350,15 @@ function pointsComponent() {
 					div.html(formatTime(d[0]) + "<br />" + formatValue(d[1]) + " &deg;C")
 						.style("left", 5 + d3.event.pageX + "px")
 						.style("top", (d3.event.pageY - 28) + "px");
+					*/
 
 				})
 				.on("mouseout", function(d) {
+					/*
 					var div = d3.selectAll('.tooltip');
 					this.style.opacity = "";
 					div.transition(200).style("opacity", 0);
+					*/
 				});
 
 			// console.log("plotPoints.draw called on " + selection);
@@ -378,6 +381,7 @@ function pointsComponent() {
 			
 		});
 		
+		point.exit().remove();
 		// console.log("plotPoints.update called on " + selection);
 		
 		}
