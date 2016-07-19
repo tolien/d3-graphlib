@@ -74,6 +74,10 @@ function timeSeriesChart() {
     			ymax = ymid + (yrange / 2);
     			ymin = ymid - (yrange / 2);
     	    }
+
+            if (ymin == ymax) {
+                ymax = ymin + 1;
+            }
 			yScale
 				.domain([ymin, ymax])
 				.range([height - margin.top - margin.bottom, 0]);
