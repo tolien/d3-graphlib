@@ -1,0 +1,70 @@
+<html>
+<link rel="stylesheet" type="text/css" href="d3chart.css" />
+<body>
+	<script src="d3.js" charset="utf-8"></script>
+	<script src="reusable-d3chart.js" charset="utf-8"></script>
+<script   src="https://code.jquery.com/jquery-2.2.4.js"   integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="   crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"  crossorigin="anonymous"></script>
+
+<div id='power'></div>
+
+	<script>
+
+var chart = timeSeriesChart();
+chart.width(960)
+chart.height(500)
+chart.margin({top: 20, right: 80, bottom: 30, left: 50});
+
+	d3.selectAll('svg').attr('class', 'power');
+	
+	// date parser - will convert YYYYMMDD dates into JS Date objects
+	var parseDate = d3.time.format("%Y%m%d").parse;
+
+    //chart.components()[0].line.interpolate('monotone');
+    chart.tooltipUnit('W');    
+   
+var formatValue = function(s) {
+    return s.toFixed(0);
+    }
+    			
+
+			// load the JSON data
+			// at this point, data looks like 
+			// power: [ data: [ [ timestamp, power ]...[ timestamp, power] ], period: date range ]
+var doStuff = function(error, data) {
+	  if (error) {
+	    console.log(error);
+	    return;
+	  }
+	  //color.domain(d3.keys(data));
+ 
+		// so we extract the list of timestamp/value pairs
+		data = data.power[0].data
+		
+		// ... and convert the timestamp into a JS Date object
+	  data.forEach(function(d) {
+	    d[0] = new Date(d[0]);
+	  });
+
+		d3.select('#power')
+		.datum([
+		    data
+		])
+		.call(chart);
+	};
+	
+function update_data() {
+	d3.timer(update_data, 30 * 60 * 1000);
+	console.log("update_data fired at " + new Date().toString());
+	d3.json("http://data.tolien.co.uk/power/data.json", doStuff);
+	
+	return true;
+}
+
+update_data();
+
+
+	</script>
+</body>
+
+</html>
