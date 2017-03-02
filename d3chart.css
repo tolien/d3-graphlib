@@ -35,8 +35,9 @@ body {
     opacity: 0.5;
 }
 
-
 div.tooltip {   
+/*
+	
   position: absolute;           
   text-align: center;           
   padding: 5px;             
@@ -45,7 +46,7 @@ div.tooltip {
   border-radius: 8px;           
   pointer-events: none; 
 	opacity: 0.9;     
-	background-color: white;   
+	background-color: white;   */
 }
 
 .axis text {
