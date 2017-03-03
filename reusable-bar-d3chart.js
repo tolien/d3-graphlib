@@ -83,22 +83,6 @@ point= point.data(function(d) { return d; } )
 				.attr("height", function(d) {
 					return yScale(0) - yScale(d[1]);
 				});
-						point.enter().append("rect")
-							.attr("class", "bar")
-							.attr("fill", function(d, i) {
-								return seriesColor;
-							})
-							.attr("x", function(d, i) {
-								return xScale(d[0]);
-							})
-							.attr("y", function(d, i) {
-								return yScale(d[1]);
-							})
-							.attr("width", barWidth)
-							.attr("height", function(d) {
-								return yScale(0) - yScale(d[1]);
-							});
-    
     }
 };
 
