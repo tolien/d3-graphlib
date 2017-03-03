@@ -9,14 +9,15 @@
 var chart = timeSeriesChart()
     .x(function(d) { return new Date(d[0]); })
     .y(function(d) { return +d[1]; });
-    chart.components()[0].line.interpolate("monotone");
-
 var barChart = timeSeriesBarChart()
 		.x(function(d) { return new Date(d[0]); })
 		.y(function(d) { return +d[1]; });
 				
 var doStuff = function(data) {
+
+    chart.components()[0].line.interpolate("basis");
 		chart.legend(["Gust", "Average"])
+		
   chart.yAxisText('miles per hour');
   d3.select("#wind")
       .datum([
@@ -24,6 +25,7 @@ var doStuff = function(data) {
       ])
       .call(chart);
 			
+    chart.components()[0].line.interpolate("monotone");
 
 			chart.legend([])
   barChart.yAxisText('millimetres');
@@ -57,6 +59,7 @@ var doStuff = function(data) {
 				data['temp']['avg']['data'], data['dewpoint']['avg']['data']
 			])
       .call(chart);
+			
 };
 
 update_data = function() {
