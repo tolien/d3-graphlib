@@ -3,3 +3,11 @@
 
 # nano tempfiles
 .*.swp
+
+# don't care about this dir
+plottable
+
+# ignore tooltip patches
+*.tooltip.patch
+
+*.old
