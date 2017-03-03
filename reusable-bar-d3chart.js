@@ -33,7 +33,7 @@ var bar = {
                 barWidth = (width - margin.legt - margin.right);
             }
 
-                        var point = this.selectAll('.bar').data(function(d, i) { return d; });
+                        var point = this.selectAll('svg .bar').data(function(d, i) { return d; });
 						point.enter().append("rect")
 							.attr("class", "bar")
 							.attr("fill", function(d, i) {
@@ -48,7 +48,7 @@ var bar = {
 							.attr("width", barWidth)
 							.attr("height", function(d) {
 								// return height - margin.top - margin.bottom - yScale(d[1]);
-								return yScale(0) - yScale(d[1]);
+								return yScale(0) - yScale(Y(d));
 							});
 
 
