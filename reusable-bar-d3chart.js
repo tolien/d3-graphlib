@@ -13,8 +13,12 @@ var bar = {
     var seriesColor = this.attr('color');
     var yDomain = yScale.domain();
 				
-				if ((yDomain[1] - yDomain[0]) < 2) {
+				var yDomainRange = yDomain[1] - yDomain[0];
+				if (yDomainRange < 2) {
 					chart.yAxis().tickFormat(d3.format('.2f'));
+				}
+				else if (yDomainRange < 5) {
+				    chart.yAxis().tickFormat(d3.format('.1f'));
 				}
 		    
 		    var data = this.data();
