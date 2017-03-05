@@ -322,6 +322,27 @@ function pointsComponent() {
 				});
 
 
+			// console.log("plotPoints.draw called on " + selection);
+		},
+		update: function(selection, X, Y, chart) {
+			var seriesColor = this.attr('color');
+            var xScale = chart.xScale();
+            var yScale = chart.yScale();
+			var point = selection.selectAll(".point");
+	point = point.data(function(d) {
+		return d;
+	})
+		.attr("cx", function(d, i) {
+			if (xScale(d[0]) < 0) {
+				this.remove();
+			}
+			return xScale(d[0]);
+		})
+		.attr("cy", function(d, i) {
+			return yScale(d[1]);
+			
+		});
+		
 			point.enter().append("svg:circle")
 				.attr("class", "point")
 				.attr("stroke", function(data, index) {
@@ -365,26 +386,6 @@ function pointsComponent() {
 					*/
 				});
 
-			// console.log("plotPoints.draw called on " + selection);
-		},
-		update: function(selection, X, Y, chart) {
-            var xScale = chart.xScale();
-            var yScale = chart.yScale();
-			var point = selection.selectAll(".point");
-	point = point.data(function(d) {
-		return d;
-	})
-		.attr("cx", function(d, i) {
-			if (xScale(d[0]) < 0) {
-				this.remove();
-			}
-			return xScale(d[0]);
-		})
-		.attr("cy", function(d, i) {
-			return yScale(d[1]);
-			
-		});
-		
 		point.exit().remove();
 		// console.log("plotPoints.update called on " + selection);
 		
