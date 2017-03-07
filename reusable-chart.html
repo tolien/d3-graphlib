@@ -15,7 +15,7 @@ var barChart = timeSeriesBarChart()
 				
 var doStuff = function(data) {
 
-    chart.components()[0].line.interpolate("basis");
+    chart.components()[0].line.curve(d3.curveBasis);
 		chart.legend(["Gust", "Average"])
 		
   chart.yAxisText('miles per hour');
@@ -25,7 +25,7 @@ var doStuff = function(data) {
       ])
       .call(chart);
 			
-    chart.components()[0].line.interpolate("monotone");
+    chart.components()[0].line.curve(d3.curveMonotoneX);
 
 			chart.legend([])
   barChart.yAxisText('millimetres');
@@ -52,7 +52,7 @@ var doStuff = function(data) {
       .call(chart);
 
 			chart.legend(["Temperature", "Dewpoint"]);
-			chart.components()[0].line.interpolate("basis");
+			chart.components()[0].line.curve(d3.curveBasis);
     chart.yAxisText("Temperature (\u00B0C)");
     d3.select("#temp")
       .datum([
