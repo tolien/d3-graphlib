@@ -126,8 +126,8 @@ function deselectChartItems(svgElement) {
 };
 </script>
 
-<input type="button" onclick="d3.json('fruit.json', dataLoaded)" value="Fruit" />
-<input type="button" onclick="d3.json('drinks.json', dataLoaded)" value="Drinks" />
+<input type="button" onclick="window.location.hash = '#fruit'; d3.json('fruit.json', dataLoaded)" value="Fruit" />
+<input type="button" onclick="window.location.hash = '#drinks'; d3.json('drinks.json', dataLoaded)" value="Drinks" />
 
 <input type="button" onclick="selectChartItem(d3.select('svg'), 1)" value="Select Apple" />
 <input type="button" onclick="deselectChartItems(d3.select('svg'))" value="Select none" />
