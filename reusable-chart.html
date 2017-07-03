@@ -65,7 +65,7 @@ var doStuff = function(data) {
 update_data = function() {
 //	d3.timer(update_data, 15 * 60 * 1000);
     console.log("update_data fired at " + new Date().toString());
-    d3.json("http://weather.tolien.co.uk/data/day.json", doStuff);   
+    d3.json(get_data_url(), doStuff);   
 	return true;
 }
 
@@ -75,6 +75,11 @@ function force_update() {
 	update_data();
 }
 
+function get_data_url() {
+    var root =  "https://weather.tolien.co.uk/data/";
+    
+    return root + "day.json";
+}
     </script>
 
 <input type="button" onclick="force_update()" value="Update" />
