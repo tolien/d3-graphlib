@@ -10,7 +10,7 @@ var bar = {
     draw: function(selection, chart, X, Y) {
 	var xScale = chart.xScale();
 	var yScale = chart.yScale();
-    var seriesColor = this.attr('color');
+    var seriesColor = selection.attr('color');
     var yDomain = yScale.domain();
 				
 				var yDomainRange = yDomain[1] - yDomain[0];
@@ -21,7 +21,7 @@ var bar = {
 				    chart.yAxis().tickFormat(d3.format('.1f'));
 				}
 		    
-		    var data = this.data();
+		    var data = selection.data();
 		        var margin = chart.margin();
         width = chart.width();
         height = chart.height();
@@ -33,7 +33,7 @@ var bar = {
                 barWidth = (width - margin.legt - margin.right);
             }
 
-                        var point = this.selectAll('svg .bar').data(function(d, i) { return d; });
+                        var point = selection.selectAll('svg .bar').data(function(d, i) { return d; });
 						point.enter().append("rect")
 							.attr("class", "bar")
 							.attr("fill", function(d, i) {
@@ -55,11 +55,11 @@ var bar = {
     
     },
     update: function(selection, X, Y, chart) {
-		    var seriesColor = this.attr('color');
+		    var seriesColor = selection.attr('color');
         var xScale = chart.xScale();
         var yScale = chart.yScale();
 
-		    var data = this.data();
+		    var data = selection.data();
 		        var margin = chart.margin();
         width = chart.width()
         height = chart.height();
@@ -71,7 +71,7 @@ var bar = {
                 barWidth = (width - margin.legt - margin.right);
             }
         
-				var point = this.selectAll(".bar");
+				var point = selection.selectAll(".bar");
 point= point.data(function(d) { return d; } )
 				point.attr("x", function(d, i) {
 					return xScale(d[0]);
