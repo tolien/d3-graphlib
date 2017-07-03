@@ -13,16 +13,16 @@ function timeSeriesChart() {
 		yValue = function(d) {
 			return d[1];
 		},
-		xScale = d3.time.scale(),
-		yScale = d3.scale.linear(),
-		xAxis = d3.svg.axis().scale(xScale).orient("bottom"),
-		yAxis = d3.svg.axis().scale(yScale).orient("left").tickFormat(d3.format("d")),
+		xScale = d3.scaleTime(),
+		yScale = d3.scaleLinear(),
+		xAxis = d3.axisBottom(xScale),
+		yAxis = d3.axisLeft(yScale).tickFormat(d3.format("d")),
 		legendItems = [],
 	components = [
 		lineComponent(), 
 		pointsComponent()
 	],
-	color = d3.scale.category10(),		
+	color = d3.scaleOrdinal(d3.schemeCategory10),		
 	yAxisText = "";
 
 	function chart(selection) {
@@ -89,12 +89,15 @@ function timeSeriesChart() {
 			var gEnter = svg.enter().append("svg").append("g");
 			gEnter.append("g").attr("class", "x axis");
 			gEnter.append("g").attr("class", "y axis")
-				.append('text')
+			gEnter.append('text')
 				.attr('transform', 'rotate(-90)')
 				.attr('y', 6)
 				.attr('dy', '-4em')
-				.style('text-anchor', 'end')
+				.style('text-anchor', 'end') 
 				.text(yAxisText);
+				
+				svg = d3.select(this).selectAll("svg");
+
 
 			var legend;
 			if (legendItems.length > 0) {
@@ -169,7 +172,11 @@ function timeSeriesChart() {
 				.attr("y", 6)
 				.attr("dy", "-3em")
 				.style("text-anchor", "end");
-
+				
+				// reset font-size and font-family
+				g.selectAll('.axis').attr('font-size', null).attr('font-family', null);
+				
+				
 					// Update the line path.
         
        // console.log(g);
@@ -278,13 +285,13 @@ function timeSeriesChart() {
 
 function lineComponent() {
 	var plotLine = {
-		line: d3.svg.line(),
+		line: d3.line(),
 			draw : function(selection, chart, X, Y) {	
 				
 				var line = plotLine.line.x(X).y(Y);
-		    var seriesColor = this.attr('color');
+		    var seriesColor = selection.attr('color');
 					//			console.log(seriesColor);
-			var path = this.append("path").attr("class", "line").style("stroke", function(d) {
+			var path = selection.append("path").attr("class", "line").style("stroke", function(d) {
 				return seriesColor;
 			});
 			
@@ -294,10 +301,10 @@ function lineComponent() {
 			// console.log("plotLine.draw called on " + this);
 		},
 		update: function(selection, X, Y, chart){
-        this.select(".line").data(function(d, i) { return d;} );
+        selection.select(".line").data(function(d, i) { return d;} );
 			
 				var line = plotLine.line.x(X).y(Y);
-				this.selectAll(".line")
+				selection.selectAll(".line")
 					.attr("d", line);
 					
 					// console.log("plotLine.update called on " + this);
@@ -310,12 +317,12 @@ function lineComponent() {
 function pointsComponent() {
 	var plotPoints = {
 		draw: function(selection, chart, X, Y) {
-			var seriesColor = this.attr('color');
+			var seriesColor = selection.attr('color');
 			var xScale = chart.xScale();
 			var yScale = chart.yScale();
 
 			// add points
-			var point = this.selectAll(".point")
+			var point = selection.selectAll(".point")
 				.data(function(d, i) {
 					//console.log(d);
 					return d;
@@ -325,7 +332,7 @@ function pointsComponent() {
 			// console.log("plotPoints.draw called on " + selection);
 		},
 		update: function(selection, X, Y, chart) {
-			var seriesColor = this.attr('color');
+			var seriesColor = selection.attr('color');
             var xScale = chart.xScale();
             var yScale = chart.yScale();
 			var point = selection.selectAll(".point");
