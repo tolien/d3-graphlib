@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Streamgraph</title>
+<style>
+
+button {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+}
+
+</style>
+<svg width="960" height="500"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="../d3-scale-chromatic.v1.js"></script>
+<script>
+
+function stackMax(layer) {
+	return d3.max(layer, function(d) {
+		return d[1];
+	});
+}
+
+function stackMin(layer) {
+	return d3.min(layer, function(d) {
+		return d[0];
+	});
+}
+
+// group data by item ID
+var itemNest = d3.nest()
+	.key(function(d) {
+		return d.item_id;
+	});
+
+// group data by date
+var dateNest = d3.nest()
+	.key(function(d) {
+		return d.date;
+	});
+
+var stack = d3.stack()
+//.offset(d3.stackOffsetWiggle)
+.order(d3.stackOrderAscending)
+.value(function(d, key) { nestedByItem = itemNest.map(d);
+if (nestedByItem.has(key) && nestedByItem.get(key).length > 0) { return nestedByItem.get(key)[0].value; } else { return 0; }});
+var margin = {top: 20, right: 20, bottom: 30, left: 50};
+
+var svg = d3.select("svg"),
+	width = +svg.attr("width"),
+	height = +svg.attr("height");
+	
+var x = d3.scaleTime()
+	.range([0, width - margin.left - margin.right]);	
+var y = d3.scaleLinear()
+	.range([height - margin.top - margin.bottom, 0]);
+var z = d3.scaleOrdinal(d3.schemePastel2);
+	
+	var area = d3.area()
+		.x(function(d, i) {
+			return x(d.data[0].date);
+		})
+		.y0(function(d) {
+			return y(d[0]);
+		})
+		.y1(function(d) {
+			return y(d[1]);
+		});
+
+    width = svg.attr("width") - margin.left - margin.right,
+    height = svg.attr("height") - margin.top - margin.bottom;
+    
+	var g = svg.append("g")
+	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var xAxis = g.append("g")
+        .attr("class", "axis axis--x")
+        .attr("transform", "translate(0," + (height) + ")")
+		
+var yAxis = g.append("g")
+        .attr("class", "axis axis--y")
+
+
+var dataLoaded = function(error, data) {
+
+	if (error) {
+		console.log(error);
+		return;
+	}
+
+	data.map(
+		function(d, i) { d.date = new Date(d.date); }); 
+	
+	x.domain(d3.extent(data, function(d) { return d.date}));
+	
+	console.log("Keys: " + itemNest.map(data).keys())
+	stack.keys(itemNest.map(data).keys())
+	var stackeddata = dateNest.entries(data).map(function(d, i) { return d.values })
+	console.log(stackeddata);
+	layers = stack(stackeddata);
+	console.log(layers);
+	y.domain([0, d3.max(layers, stackMax)])
+
+	g.selectAll('path').remove();	
+var path = g.selectAll("path")
+		.data(layers)
+		.attr("d", area)
+		.enter().append("path")
+		.attr("d", area)
+		.attr("class", function(d, i) {
+		    return d.key;
+		})
+		.attr("fill", function(d, i) {
+		return z(d.key);
+		})
+		.exit().remove();
+		
+        xAxis.call(d3.axisBottom(x));
+        yAxis.call(d3.axisLeft(y).ticks(10));
+		
+		
+		
+
+};
+
+var hash = window.location.hash;
+if (hash) {
+  console.log("Hash: " + hash);
+  if (hash === "#drinks") {
+    d3.json("stream-data/stream-drinks.json", dataLoaded); 
+  }
+  else {
+    d3.json("stream-data/stream-fruit.json", dataLoaded); 
+  }
+}
+else {
+  console.log("No hash");
+  d3.json("stream-data/stream-fruit.json", dataLoaded); 
+}
+
+
+
+</script>
