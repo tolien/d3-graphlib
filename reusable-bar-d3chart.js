@@ -30,7 +30,7 @@ var bar = {
             if (data.length > 0 && data[0].length > 0) {
                 barWidth = (width - margin.left - margin.right) / data[0].length;
             } else {
-                barWidth = (width - margin.legt - margin.right);
+                barWidth = (width - margin.left - margin.right);
             }
 
                         var point = selection.selectAll('svg .bar').data(function(d, i) { return d; });
