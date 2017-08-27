@@ -11,3 +11,6 @@ plottable
 *.tooltip.patch
 
 *.old
+
+# data
+examples/*-data/*.json
