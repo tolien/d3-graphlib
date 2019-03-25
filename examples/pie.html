@@ -13,7 +13,7 @@
 
 </style>
 <body>
-<script src="../d3-4.0.js" charset="utf-8"></script>
+<script src="../d3-5.0.js" charset="utf-8"></script>
 <script src="../d3-scale-chromatic.v1.js"></script>
 <script>
 
@@ -21,7 +21,7 @@ var width = 600,
     height = 300,
     radius = Math.min(width, height) / 2;
 
-  var color = d3.scaleOrdinal(d3.schemePastel1);
+  var color = d3.scaleOrdinal(d3.schemeBlues[9].reverse());
   
 var arc = d3.arc()
     .outerRadius(radius - 10)
@@ -42,9 +42,8 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-var dataLoaded = function(error, data) {
-  if (error) throw error;
-  
+var dataLoaded = function(data) {
+ 
   data.sort(function(a, b){ return a.sum - b.sum; });  
   data.reverse()  
 if (svg.data() && svg.data()[0]) {
@@ -101,15 +100,15 @@ var hash = window.location.hash;
 if (hash) {
   console.log("Hash: " + hash);
   if (hash === "#drinks") {
-    d3.json("pie-data/drinks.json", dataLoaded);
+    d3.json("pie-data/drinks.json").then(dataLoaded);
   }
   else {
-    d3.json("pie-data/fruit.json", dataLoaded);
+    d3.json("pie-data/fruit.json").then(dataLoaded);
   }
 }
 else {
   console.log("No hash");
-  d3.json("pie-data/fruit.json", dataLoaded);
+  d3.json("pie-data/fruit.json").then(dataLoaded);
 }
 
 function selectChartItem(svgElement, index) {
