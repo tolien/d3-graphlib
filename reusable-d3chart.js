@@ -16,7 +16,7 @@ function timeSeriesChart() {
 		xScale = d3.scaleTime(),
 		yScale = d3.scaleLinear(),
 		xAxis = d3.axisBottom(xScale),
-		yAxis = d3.axisLeft(yScale).tickFormat(d3.format("d")),
+		yAxis = d3.axisLeft(yScale),
 		legendItems = [],
 	components = [
 		lineComponent(), 
@@ -81,7 +81,19 @@ function timeSeriesChart() {
 			yScale
 				.domain([ymin, ymax])
 				.range([height - margin.top - margin.bottom, 0]);
-				
+
+			var yDomainRange = ymax - ymin;
+			var ySteps = yDomainRange / (yScale.ticks().length - 1);
+			if (ySteps <= 0.5) {
+				chart.yAxis().tickFormat(d3.format('.2f'));
+			}
+			else if (ySteps < 1) {
+			    chart.yAxis().tickFormat(d3.format('.1f'));
+			}
+			else {
+			    chart.yAxis().tickFormat(d3.format("d"));
+			}
+
 			// Select the svg element, if it exists.
 			var svg = d3.select(this).selectAll("svg").data([data]);
 			
