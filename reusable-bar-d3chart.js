@@ -73,10 +73,6 @@ var bar = {
                 barWidth = (width - margin.legt - margin.right);
             }
             barWidth = Math.floor(barWidth - 2);
-            // subtract a bar's width
-   		    var xRange = xScale.range();
-		    xRange[1] = xRange[1] - barWidth;
-	//	    xScale.range(xRange);
 
 var barStarts = [];
 data[0].map(function(d, i) {
