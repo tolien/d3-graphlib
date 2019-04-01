@@ -1,92 +1,101 @@
 <html>
 <link rel="stylesheet" type="text/css" href="d3chart.css" />
+
 <body>
     <script src="d3-5.0.js" charset="utf-8"></script>
     <script src="reusable-d3chart.js" charset="utf-8"></script>
     <script src="reusable-bar-d3chart.js" charset="utf-8"></script>
     <script>
+        var chart = timeSeriesChart()
+            .x(function(d) {
+                return new Date(d[0]);
+            })
+            .y(function(d) {
+                return +d[1];
+            });
+        var barChart = timeSeriesBarChart()
+            .x(function(d) {
+                return new Date(d[0]);
+            })
+            .y(function(d) {
+                return +d[1];
+            });
 
-var chart = timeSeriesChart()
-    .x(function(d) { return new Date(d[0]); })
-    .y(function(d) { return +d[1]; });
-var barChart = timeSeriesBarChart()
-		.x(function(d) { return new Date(d[0]); })
-		.y(function(d) { return +d[1]; });
-				
-var doStuff = function(data) {
+        var doStuff = function(data) {
 
-    chart.components()[0].line.curve(d3.curveBasis);
-		chart.legend(["Gust", "Average"])
-		
-  chart.yAxisText('miles per hour');
-  d3.select("#wind")
-      .datum([
-      	data['wind']['max']['data'], data['wind']['average']['data']
-      ])
-      .call(chart);
-			
-    chart.components()[0].line.curve(d3.curveMonotoneX);
+            chart.components()[0].line.curve(d3.curveBasis);
+            chart.legend(["Gust", "Average"])
 
-			chart.legend([])
-  barChart.yAxisText('millimetres');
-		  d3.select("#rain")
-		      .datum([
-		      	data['rain']['total']['data']
-		      ])
-		      .call(barChart);
+            chart.yAxisText('miles per hour');
+            d3.select("#wind")
+                .datum([
+                    data['wind']['max']['data'], data['wind']['average']['data']
+                ])
+                .call(chart);
 
-  chart.yAxisText('Watts per metre squared');
-			chart.legend(['Average', 'Maximum'])
-  d3.select("#solar")
-      .datum([
-      	data['solar']['avg']['data'], data['solar']['max']['data']
-      ])
-      .call(chart);
-			
-			chart.legend([])
-  chart.yAxisText('barometric pressure (hPa)');		
-  d3.select("#pressure")
-      .datum([
-      	data['pressure']['avg']['data']
-      ])
-      .call(chart);
+            chart.components()[0].line.curve(d3.curveMonotoneX);
 
-			chart.legend(["Temperature", "Dewpoint"]);
-			chart.components()[0].line.curve(d3.curveBasis);
-    chart.yAxisText("Temperature (\u00B0C)");
-    d3.select("#temp")
-      .datum([
-				data['temp']['avg']['data'], data['dewpoint']['avg']['data']
-			])
-      .call(chart);
-			
-};
+            chart.legend([])
+            barChart.yAxisText('millimetres');
+            d3.select("#rain")
+                .datum([
+                    data['rain']['total']['data']
+                ])
+                .call(barChart);
 
-var update_data = function(elapsed) {
-	d3.timeout(update_data, 15 * 60 * 1000);
-    console.log("update_data fired at " + new Date().toString());
-    d3.json(get_data_url()).then(doStuff);
-	return true;
-}
+            chart.yAxisText('Watts per metre squared');
+            chart.legend(['Average', 'Maximum'])
+            d3.select("#solar")
+                .datum([
+                    data['solar']['avg']['data'], data['solar']['max']['data']
+                ])
+                .call(chart);
 
-update_data();
+            chart.legend([])
+            chart.yAxisText('barometric pressure (hPa)');
+            d3.select("#pressure")
+                .datum([
+                    data['pressure']['avg']['data']
+                ])
+                .call(chart);
 
-function force_update() {
-	update_data();
-}
+            chart.legend(["Temperature", "Dewpoint"]);
+            chart.components()[0].line.curve(d3.curveBasis);
+            chart.yAxisText("Temperature (\u00B0C)");
+            d3.select("#temp")
+                .datum([
+                    data['temp']['avg']['data'], data['dewpoint']['avg']['data']
+                ])
+                .call(chart);
 
-function get_data_url() {
-    var root =  "https://weather.tolien.co.uk/data/";
-    
-    return root + "day.json";
-}
+        };
+
+        var update_data = function(elapsed) {
+            d3.timeout(update_data, 15 * 60 * 1000);
+            console.log("update_data fired at " + new Date().toString());
+            d3.json(get_data_url()).then(doStuff);
+            return true;
+        }
+
+        update_data();
+
+        function force_update() {
+            update_data();
+        }
+
+        function get_data_url() {
+            var root = "https://weather.tolien.co.uk/data/";
+
+            return root + "day.json";
+        }
     </script>
 
-<input type="button" onclick="force_update()" value="Update" />
-<p id="temp" />
-<p id="rain" />
-<p id="wind" />
-<p id="pressure" />
-<p id="solar"></p>
+    <input type="button" onclick="force_update()" value="Update" />
+    <p id="temp" />
+    <p id="rain" />
+    <p id="wind" />
+    <p id="pressure" />
+    <p id="solar"></p>
 </body>
+
 </html>
