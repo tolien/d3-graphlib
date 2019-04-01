@@ -17,6 +17,7 @@ function timeSeriesChart() {
         yScale = d3.scaleLinear(),
         xAxis = d3.axisBottom(xScale),
         yAxis = d3.axisLeft(yScale),
+        yLabelFormatter,
         legendItems = [],
         components = [
             lineComponent(),
@@ -82,21 +83,14 @@ function timeSeriesChart() {
                 .domain([ymin, ymax])
                 .range([height - margin.top - margin.bottom, 0]);
 
-            yScale.nice(5)
+            yScale.nice(5);
 
-            var yDomainRange = yScale.domain()[1] - yScale.domain()[0];
-            var ySteps = yDomainRange / (yScale.ticks()
-                .length - 1);
-            if (ySteps < 0.5) {
-                chart.yAxis()
-                    .tickFormat(d3.format('.2f'));
-            } else if (ySteps < 1) {
-                chart.yAxis()
-                    .tickFormat(d3.format('.1f'));
-            } else {
-                chart.yAxis()
-                    .tickFormat(d3.format("d"));
+            if (!yLabelFormatter) {
+                yLabelFormatter = defaultYAxisLabelFormatter();
             }
+
+            yLabelFormatter(chart);
+
 
             // Select the svg element, if it exists.
             var svg = d3.select(this)
@@ -314,6 +308,32 @@ function timeSeriesChart() {
         yAxis = _;
         return chart;
     };
+
+    chart.yAxisLabelFormatter = function(_) {
+        if (!arguments.length) return yLabelFormatter;
+        yLabelFormatter = _;
+        return chart;
+    };
+
+    function defaultYAxisLabelFormatter() {
+        return function(chart) {
+            var yScale = chart.yScale();
+            var yDomainRange = yScale.domain()[1] - yScale.domain()[0];
+            var ySteps = yDomainRange / (yScale.ticks()
+                .length - 1);
+            if (ySteps < 0.5) {
+                chart.yAxis()
+                    .tickFormat(d3.format('.2f'));
+            } else if (ySteps < 1) {
+                chart.yAxis()
+                    .tickFormat(d3.format('.1f'));
+            } else {
+                chart.yAxis()
+                    .tickFormat(d3.format("d"));
+            }
+        }
+    };
+
 
     return chart;
 }

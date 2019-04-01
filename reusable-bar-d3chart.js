@@ -1,16 +1,7 @@
 timeSeriesBarChart = function() {
-    var barChart = timeSeriesChart();
-    barChart.components([barComponent()]);
-    return barChart;
-};
-
-function barComponent() {
-    var bar = {
-
-        draw: function(selection, chart, X, Y) {
-            var xScale = chart.xScale();
+    var yAxisLabelFormatter = function() {
+        return function(chart) {
             var yScale = chart.yScale();
-            var seriesColor = selection.attr('color');
             var yDomain = yScale.domain();
 
             var yDomainRange = yDomain[1] - yDomain[0];
@@ -21,12 +12,28 @@ function barComponent() {
                 chart.yAxis()
                     .tickFormat(d3.format('.1f'));
             }
+        }
+    };
 
+    var barChart = timeSeriesChart();
+    barChart.components([barComponent()]);
+    barChart.yAxisLabelFormatter(yAxisLabelFormatter());
+    return barChart;
+};
+
+function barComponent() {
+    var bar = {
+
+        draw: function(selection, chart, X, Y) {
+            var xScale = chart.xScale();
+            var yScale = chart.yScale();
+            var seriesColor = selection.attr('color');
             var data = selection.data();
             var margin = chart.margin();
             width = chart.width();
             height = chart.height();
             var barWidth = 0;
+            var yDomain = yScale.domain();
 
             if (data.length > 0 && data[0].length > 0) {
                 barWidth = (width - margin.left - margin.right) / data[0].length;
