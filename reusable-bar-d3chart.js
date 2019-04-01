@@ -48,7 +48,7 @@ var bar = {
 							.attr("width", barWidth)
 							.attr("height", function(d) {
 								// return height - margin.top - margin.bottom - yScale(d[1]);
-								return yScale(0) - yScale(Y(d));
+								return yScale(yDomain[0]) - Y(d);
 							});
 
 
@@ -58,6 +58,8 @@ var bar = {
 		    var seriesColor = selection.attr('color');
         var xScale = chart.xScale();
         var yScale = chart.yScale();
+
+    var yDomain = yScale.domain();
 
 		    var data = selection.data();
 		        var margin = chart.margin();
@@ -70,7 +72,17 @@ var bar = {
             } else {
                 barWidth = (width - margin.legt - margin.right);
             }
-        
+            barWidth = Math.floor(barWidth - 2);
+            // subtract a bar's width
+   		    var xRange = xScale.range();
+		    xRange[1] = xRange[1] - barWidth;
+	//	    xScale.range(xRange);
+
+var barStarts = [];
+data[0].map(function(d, i) {
+    barStarts[i] = xScale(d[0])
+})
+
 				var point = selection.selectAll(".bar");
 point= point.data(function(d) { return d; } )
 				point.attr("x", function(d, i) {
@@ -79,12 +91,30 @@ point= point.data(function(d) { return d; } )
 				.attr("y", function(d, i) {
 					return yScale(d[1]);
 				})
-				.attr("width", barWidth)
+				.attr("width", function(d, i) {
+				    if (i < barStarts.length - 1) {
+    				    return barStarts[i + 1] - barStarts[i] - 1;
+    				}
+    				else {
+				    // originally, this assumed that the right-most bar ended at the RHS of the chart
+				    // this assumption clearly doesn't hold
+				    // change this to use the width of the preceding bar
+    				    // return (width - margin.left - margin.right) - barStarts[i] - 5;;
+    				    return barStarts[i] - barStarts[i - 1] - 1;
+    				}
+				})
 				.attr("height", function(d) {
-					return yScale(0) - yScale(d[1]);
+					return yScale(yDomain[0]) - Y(d);
 				});
-    }
+    },
+
+
 };
+
+bar.updateXRange = function() {
+
+}
+
 
 return bar;
 }

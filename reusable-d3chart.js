@@ -82,14 +82,16 @@ function timeSeriesChart() {
 				.domain([ymin, ymax])
 				.range([height - margin.top - margin.bottom, 0]);
 
-			var yDomainRange = ymax - ymin;
+            yScale.nice(5)
+
+			var yDomainRange = yScale.domain()[1] - yScale.domain()[0];
 			var ySteps = yDomainRange / (yScale.ticks().length - 1);
-			if (ySteps <= 0.5) {
-				chart.yAxis().tickFormat(d3.format('.2f'));
-			}
-			else if (ySteps < 1) {
-			    chart.yAxis().tickFormat(d3.format('.1f'));
-			}
+            if (ySteps < 0.5) {
+                chart.yAxis().tickFormat(d3.format('.2f'));
+            }
+            else if (ySteps < 1) {
+                chart.yAxis().tickFormat(d3.format('.1f'));
+            }
 			else {
 			    chart.yAxis().tickFormat(d3.format("d"));
 			}
@@ -104,10 +106,10 @@ function timeSeriesChart() {
 			gEnter.append('text')
 				.attr('transform', 'rotate(-90)')
 				.attr('y', 6)
-				.attr('dy', '-4em')
-				.style('text-anchor', 'end') 
+				.attr('dy', '-4.2em')
+				.style('text-anchor', 'end')
 				.text(yAxisText);
-				
+
 				svg = d3.select(this).selectAll("svg");
 
 
