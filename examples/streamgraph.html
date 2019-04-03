@@ -2,179 +2,195 @@
 <meta charset="utf-8">
 <title>Streamgraph</title>
 <style>
-
-button {
-  position: absolute;
-  left: 10px;
-  top: 10px;
-}
-
+    button {
+        position: absolute;
+        left: 10px;
+        top: 10px;
+    }
 </style>
 <svg id="streamgraph" width="960" height="500"></svg>
 <script src="../d3-5.0.js"></script>
 <script src="../d3-scale-chromatic.v1.js"></script>
 <script>
+    function stackMax(layer) {
+        return d3.max(layer, function(d) {
+            return d[1];
+        });
+    }
 
-function stackMax(layer) {
-	return d3.max(layer, function(d) {
-		return d[1];
-	});
-}
+    function stackMin(layer) {
+        return d3.min(layer, function(d) {
+            return d[0];
+        });
+    }
 
-function stackMin(layer) {
-	return d3.min(layer, function(d) {
-		return d[0];
-	});
-}
+    // group data by item ID
+    var itemNest = d3.nest()
+        .key(function(d) {
+            return d.item_id;
+        });
 
-// group data by item ID
-var itemNest = d3.nest()
-	.key(function(d) {
-		return d.item_id;
-	});
+    // group data by date
+    var dateNest = d3.nest()
+        .key(function(d) {
+            return d.date;
+        });
 
-// group data by date
-var dateNest = d3.nest()
-	.key(function(d) {
-		return d.date;
-	});
+    var stack = d3.stack()
+        //.offset(d3.stackOffsetWiggle)
+        .order(d3.stackOrderAscending)
+        .value(function(d, key) {
+            nestedByItem = itemNest.map(d);
+            if (nestedByItem.has(key) && nestedByItem.get(key).length > 0) {
+                return nestedByItem.get(key)[0].value;
+            } else {
+                return 0;
+            }
+        });
+    var margin = {
+        top: 20,
+        right: 20,
+        bottom: 30,
+        left: 50
+    };
 
-var stack = d3.stack()
-//.offset(d3.stackOffsetWiggle)
-.order(d3.stackOrderAscending)
-.value(function(d, key) { nestedByItem = itemNest.map(d);
-if (nestedByItem.has(key) && nestedByItem.get(key).length > 0) { return nestedByItem.get(key)[0].value; } else { return 0; }});
-var margin = {top: 20, right: 20, bottom: 30, left: 50};
+    var svg = d3.select("svg"),
+        width = +svg.attr("width"),
+        height = +svg.attr("height");
 
-var svg = d3.select("svg"),
-	width = +svg.attr("width"),
-	height = +svg.attr("height");
-	
-var x = d3.scaleTime()
-	.range([0, width - margin.left - margin.right]);	
-var y = d3.scaleLinear()
-	.range([height - margin.top - margin.bottom, 0]);
-var zColours = d3.schemeBlues[9].reverse();
-	
-	var area = d3.area()
-		.x(function(d, i) {
-			return x(d.data[0].date);
-		})
-		.y0(function(d) {
-			return y(d[0]);
-		})
-		.y1(function(d) {
-			return y(d[1]);
-		});
+    var x = d3.scaleTime()
+        .range([0, width - margin.left - margin.right]);
+    var y = d3.scaleLinear()
+        .range([height - margin.top - margin.bottom, 0]);
+    var zColours = d3.schemeBlues[9].reverse();
+
+    var area = d3.area()
+        .x(function(d, i) {
+            return x(d.data[0].date);
+        })
+        .y0(function(d) {
+            return y(d[0]);
+        })
+        .y1(function(d) {
+            return y(d[1]);
+        });
 
     width = svg.attr("width") - margin.left - margin.right,
-    height = svg.attr("height") - margin.top - margin.bottom;
-    
-	var g = svg.append("g")
-	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        height = svg.attr("height") - margin.top - margin.bottom;
 
-var xAxis = g.append("g")
+    var g = svg.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var xAxis = g.append("g")
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + (height) + ")")
-		
-var yAxis = g.append("g")
+
+    var yAxis = g.append("g")
         .attr("class", "axis axis--y")
-var z;
+    var z;
 
-var dataLoaded = function(data) {
-    var topItems;
-    if (data['top_items']) {
-        topItems = data['top_items'];
-        z = d3.scaleOrdinal(d3.quantize(d3.interpolateHcl(zColours[0], zColours[zColours.length - 1]), topItems.length + 1));
-        for (var item = 0; item < topItems.length; item++) {
-            console.log(topItems[item].id, topItems[item].name, z(topItems[item].id));
+    var dataLoaded = function(data) {
+        var topItems;
+        if (data['top_items']) {
+            topItems = data['top_items'];
+            z = d3.scaleOrdinal(d3.quantize(d3.interpolateHcl(zColours[0], zColours[zColours.length - 1]), topItems.length + 1));
+            for (var item = 0; item < topItems.length; item++) {
+                console.log(topItems[item].id, topItems[item].name, z(topItems[item].id));
+            }
+        } else {
+            z = d3.scaleOrdinal(d3.quantize(d3.interpolateHcl(zColours[0], zColours[zColours.length - 1]), 10));
         }
-    }
-    else {
-        z = d3.scaleOrdinal(d3.quantize(d3.interpolateHcl(zColours[0], zColours[zColours.length - 1]), 10));
-    }
 
-    if (data['data']) {
-        data = data['data'];
-    }
-	data.map(
-		function(d, i) { d.date = new Date(d.date); }); 
-	
-	x.domain(d3.extent(data, function(d) { return d.date}));
-	
-	console.log("Keys: " + itemNest.map(data).keys())
-	stack.keys(itemNest.map(data).keys())
-	var stackeddata = dateNest.entries(data).map(function(d, i) { return d.values })
-	console.log(stackeddata);
-	layers = stack(stackeddata);
-	console.log(layers);
-	y.domain([0, d3.max(layers, stackMax)])
-
-	g.selectAll('path').remove();	
-
-var path = g.selectAll("path")
-		.data(layers)
-		.attr("d", area)
-		.enter().append("path")
-		.attr("d", area)
-		.attr("class", function(d, i) {
-		    return "item" + d.key;
-		})
-		.attr("fill", function(d, i) {
-        // if the item is not in topItems (and topItems is defined)
-        // use the same colour for all 'other' items
-		if (topItems) {
-    		for (var i = 0; i < topItems.length; i++) {
-	    	    if (topItems[i].id == d.key) {
-		            return z(d.key);
-		        }
-    		}
-    		return z("Other");
+        if (data['data']) {
+            data = data['data'];
         }
-        else {
-            return z(d.key);
-        }
-		})
-		.exit().remove();
-		
+        data.map(
+            function(d, i) {
+                d.date = new Date(d.date);
+            });
+
+        x.domain(d3.extent(data, function(d) {
+            return d.date
+        }));
+
+        console.log("Keys: " + itemNest.map(data).keys())
+        stack.keys(itemNest.map(data).keys())
+        var stackeddata = dateNest.entries(data).map(function(d, i) {
+            return d.values
+        })
+        console.log(stackeddata);
+        layers = stack(stackeddata);
+        console.log(layers);
+        y.domain([0, d3.max(layers, stackMax)])
+
+        g.selectAll('path').remove();
+
+        var path = g.selectAll("path")
+            .data(layers)
+            .attr("d", area)
+            .enter().append("path")
+            .attr("d", area)
+            .attr("class", function(d, i) {
+                return "item" + d.key;
+            })
+            .attr("fill", function(d, i) {
+                // if the item is not in topItems (and topItems is defined)
+                // use the same colour for all 'other' items
+                if (topItems) {
+                    for (var i = 0; i < topItems.length; i++) {
+                        if (topItems[i].id == d.key) {
+                            return z(d.key);
+                        }
+                    }
+                    return z("Other");
+                } else {
+                    return z(d.key);
+                }
+            })
+            .exit().remove();
+
         xAxis.call(d3.axisBottom(x));
         yAxis.call(d3.axisLeft(y).ticks(10));
-		
-		
-		
 
-};
 
-var hash = window.location.hash;
-if (hash) {
-  console.log("Hash: " + hash);
-  if (hash === "#drinks") {
-    d3.json("stream-data/stream-drinks.json").then(dataLoaded); 
-  }
-  else if (hash === "#fruit") {
-    d3.json("stream-data/stream-fruit.json").then(dataLoaded); 
-  }
-  else if (hash === "#tv") {
-    d3.json("stream-data/tv.json").then(dataLoaded);
-  }
-}
-else {
-  console.log("No hash");
-  d3.json("stream-data/stream-fruit.json").then(dataLoaded); 
-}
 
-function selectItem(container, itemId) {
-  var deselected = d3.select(container).selectAll('path')
-     .filter(function(d, i) { if (d) { return d.key != itemId; }});
-  deselected.attr('fill', '#E8E8E8');
 
-}
+    };
 
-function resetSelection(container) {
-  var paths = d3.select(container).selectAll('path');
-  paths.attr('fill', function(d) { if (d) { return z(d.key); } })
-}
+    var hash = window.location.hash;
+    if (hash) {
+        console.log("Hash: " + hash);
+        if (hash === "#drinks") {
+            d3.json("stream-data/stream-drinks.json").then(dataLoaded);
+        } else if (hash === "#fruit") {
+            d3.json("stream-data/stream-fruit.json").then(dataLoaded);
+        } else if (hash === "#tv") {
+            d3.json("stream-data/tv.json").then(dataLoaded);
+        }
+    } else {
+        console.log("No hash");
+        d3.json("stream-data/stream-fruit.json").then(dataLoaded);
+    }
 
+    function selectItem(container, itemId) {
+        var deselected = d3.select(container).selectAll('path')
+            .filter(function(d, i) {
+                if (d) {
+                    return d.key != itemId;
+                }
+            });
+        deselected.attr('fill', '#E8E8E8');
+
+    }
+
+    function resetSelection(container) {
+        var paths = d3.select(container).selectAll('path');
+        paths.attr('fill', function(d) {
+            if (d) {
+                return z(d.key);
+            }
+        })
+    }
 </script>
 
 <a href="" onmouseover="selectItem('#streamgraph', '10')" onmouseout="resetSelection('#streamgraph')">Orange</a>
@@ -182,4 +198,3 @@ function resetSelection(container) {
 <a href="" onmouseover="selectItem('#streamgraph', '58')" onmouseout="resetSelection('#streamgraph')">Grapes</a>
 <a href="" onmouseover="selectItem('#streamgraph', '24')" onmouseout="resetSelection('#streamgraph')">Strawberry</a>
 <a href="" onmouseover="selectItem('#streamgraph', '65')" onmouseout="resetSelection('#streamgraph')">Plum</a>
-
