@@ -10,8 +10,8 @@ button {
 }
 
 </style>
-<svg width="960" height="500"></svg>
-<script src="https://d3js.org/d3.v4.min.js"></script>
+<svg id="streamgraph" width="960" height="500"></svg>
+<script src="../d3-5.0.js"></script>
 <script src="../d3-scale-chromatic.v1.js"></script>
 <script>
 
@@ -54,7 +54,7 @@ var x = d3.scaleTime()
 	.range([0, width - margin.left - margin.right]);	
 var y = d3.scaleLinear()
 	.range([height - margin.top - margin.bottom, 0]);
-var z = d3.scaleOrdinal(d3.schemePastel2);
+var zColours = d3.schemeBlues[9].reverse();
 	
 	var area = d3.area()
 		.x(function(d, i) {
@@ -79,15 +79,24 @@ var xAxis = g.append("g")
 		
 var yAxis = g.append("g")
         .attr("class", "axis axis--y")
+var z;
 
+var dataLoaded = function(data) {
+    var topItems;
+    if (data['top_items']) {
+        topItems = data['top_items'];
+        z = d3.scaleOrdinal(d3.quantize(d3.interpolateHcl(zColours[0], zColours[zColours.length - 1]), topItems.length + 1));
+        for (var item = 0; item < topItems.length; item++) {
+            console.log(topItems[item].id, topItems[item].name, z(topItems[item].id));
+        }
+    }
+    else {
+        z = d3.scaleOrdinal(d3.quantize(d3.interpolateHcl(zColours[0], zColours[zColours.length - 1]), 10));
+    }
 
-var dataLoaded = function(error, data) {
-
-	if (error) {
-		console.log(error);
-		return;
-	}
-
+    if (data['data']) {
+        data = data['data'];
+    }
 	data.map(
 		function(d, i) { d.date = new Date(d.date); }); 
 	
@@ -102,16 +111,29 @@ var dataLoaded = function(error, data) {
 	y.domain([0, d3.max(layers, stackMax)])
 
 	g.selectAll('path').remove();	
+
 var path = g.selectAll("path")
 		.data(layers)
 		.attr("d", area)
 		.enter().append("path")
 		.attr("d", area)
 		.attr("class", function(d, i) {
-		    return d.key;
+		    return "item" + d.key;
 		})
 		.attr("fill", function(d, i) {
-		return z(d.key);
+        // if the item is not in topItems (and topItems is defined)
+        // use the same colour for all 'other' items
+		if (topItems) {
+    		for (var i = 0; i < topItems.length; i++) {
+	    	    if (topItems[i].id == d.key) {
+		            return z(d.key);
+		        }
+    		}
+    		return z("Other");
+        }
+        else {
+            return z(d.key);
+        }
 		})
 		.exit().remove();
 		
@@ -127,17 +149,37 @@ var hash = window.location.hash;
 if (hash) {
   console.log("Hash: " + hash);
   if (hash === "#drinks") {
-    d3.json("stream-data/stream-drinks.json", dataLoaded); 
+    d3.json("stream-data/stream-drinks.json").then(dataLoaded); 
   }
-  else {
-    d3.json("stream-data/stream-fruit.json", dataLoaded); 
+  else if (hash === "#fruit") {
+    d3.json("stream-data/stream-fruit.json").then(dataLoaded); 
+  }
+  else if (hash === "#tv") {
+    d3.json("stream-data/tv.json").then(dataLoaded);
   }
 }
 else {
   console.log("No hash");
-  d3.json("stream-data/stream-fruit.json", dataLoaded); 
+  d3.json("stream-data/stream-fruit.json").then(dataLoaded); 
 }
 
+function selectItem(container, itemId) {
+  var deselected = d3.select(container).selectAll('path')
+     .filter(function(d, i) { if (d) { return d.key != itemId; }});
+  deselected.attr('fill', '#E8E8E8');
 
+}
+
+function resetSelection(container) {
+  var paths = d3.select(container).selectAll('path');
+  paths.attr('fill', function(d) { if (d) { return z(d.key); } })
+}
 
 </script>
+
+<a href="" onmouseover="selectItem('#streamgraph', '10')" onmouseout="resetSelection('#streamgraph')">Orange</a>
+<a href="" onmouseover="selectItem('#streamgraph', '11')" onmouseout="resetSelection('#streamgraph')">Apple</a>
+<a href="" onmouseover="selectItem('#streamgraph', '58')" onmouseout="resetSelection('#streamgraph')">Grapes</a>
+<a href="" onmouseover="selectItem('#streamgraph', '24')" onmouseout="resetSelection('#streamgraph')">Strawberry</a>
+<a href="" onmouseover="selectItem('#streamgraph', '65')" onmouseout="resetSelection('#streamgraph')">Plum</a>
+
